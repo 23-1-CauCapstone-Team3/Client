@@ -22,7 +22,7 @@ class _AlarmPageState extends State<AlarmPage> {
   bool todayWakeUpHelp = false;
 
   /// [S] alarmInfo DB 관련 변수 및 method
-  AlarmInfoProvider _alarmInfoProvider = AlarmInfoProvider();
+  final AlarmInfoProvider _alarmInfoProvider = AlarmInfoProvider();
   Future<List<AlarmInfo>>? _alarms;
   List<AlarmInfo>? _currentAlarms;
   Future<AlarmInfo>? _todayAlarm;
@@ -232,6 +232,7 @@ class _AlarmPageState extends State<AlarmPage> {
               ],
 
               /// [E] 오늘 막차 알림 표시
+
               const SizedBox(height: 20),
 
               /// [S] 오늘 막차 설정 창
@@ -339,6 +340,7 @@ class _AlarmPageState extends State<AlarmPage> {
               ),
 
               /// [E] 오늘 막차 설정 창
+
               const SizedBox(height: 20),
 
               /// [S] 기타 일림 view
@@ -355,6 +357,7 @@ class _AlarmPageState extends State<AlarmPage> {
                   onPressed: () {
                     //TODO: insert new Alarm
                     showModalBottomSheet<void>(
+                      isScrollControlled: true,
                       backgroundColor: CustomColors.sheetBackgroundColor,
                       context: context,
                       builder: (BuildContext context) {
@@ -364,6 +367,8 @@ class _AlarmPageState extends State<AlarmPage> {
                         return StatefulBuilder(
                             builder: (BuildContext context, setState) =>
                                 SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.92,
                                   child: Align(
                                     alignment: Alignment(0.0, -0.9),
                                     child: Column(
@@ -559,6 +564,7 @@ class _AlarmPageState extends State<AlarmPage> {
                           return InkWell(
                               onTap: () {
                                 showModalBottomSheet<void>(
+                                  isScrollControlled: true,
                                   backgroundColor:
                                       CustomColors.sheetBackgroundColor,
                                   context: context,
@@ -570,6 +576,10 @@ class _AlarmPageState extends State<AlarmPage> {
                                         builder:
                                             (BuildContext context, setState) =>
                                                 SizedBox(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      0.92,
                                                   child: Align(
                                                     alignment:
                                                         Alignment(0.0, -0.9),
