@@ -6,7 +6,9 @@ import 'models/alarm_info.dart';
 final String TABLENAME = 'alarmInfo';
 
 class AlarmInfoProvider {
-  static final AlarmInfoProvider _alarmInfoProvider = AlarmInfoProvider._internal();
+  static final AlarmInfoProvider _alarmInfoProvider = AlarmInfoProvider
+      ._internal();
+
   AlarmInfoProvider._internal(){
     // init values...
 
@@ -15,6 +17,7 @@ class AlarmInfoProvider {
     so change 'get database'
     */
   }
+
   factory AlarmInfoProvider() {
     return _alarmInfoProvider;
   }
@@ -43,8 +46,8 @@ class AlarmInfoProvider {
 
   Future<List<AlarmInfo>> getDB() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db!.query(TABLENAME);
-    if( maps.isEmpty ) return [];
+    final List<Map<String, dynamic>> maps = await db!.query(TABLENAME, orderBy: "alarmDate");
+    if (maps.isEmpty) return [];
     List<AlarmInfo> list = List.generate(maps.length, (index) {
       return AlarmInfo(
         id: maps[index]["id"],
@@ -53,6 +56,21 @@ class AlarmInfoProvider {
       );
     });
     return list;
+  }
+
+  Future<AlarmInfo> getTodayAlarm(String today) async {
+    final db = await database;
+    final List<Map<String, dynamic>> map = await db!.query(
+        TABLENAME,
+        where: "alarmDate = ?",
+        whereArgs: [today],
+    );
+    if (map.isEmpty) return AlarmInfo(alarmDate: "", location: "");
+    return AlarmInfo(
+      id: map[0]["id"],
+      alarmDate: map[0]["alarmDate"],
+      location: map[0]["location"],
+    );
   }
 
   Future<void> insert(AlarmInfo alarmInfo) async {
@@ -70,12 +88,21 @@ class AlarmInfoProvider {
     );
   }
 
-  Future<void> delete(AlarmInfo alarmInfo) async {
+  Future<void> idDelete(AlarmInfo alarmInfo) async {
     final db = await database;
     await db?.delete(
       TABLENAME,
       where: "id = ?",
       whereArgs: [alarmInfo.id],
+    );
+  }
+
+  Future<void> dateDelete(String alarmDate) async {
+    final db = await database;
+    await db?.delete(
+      TABLENAME,
+      where: "alarmDate = ?",
+      whereArgs: [alarmDate],
     );
   }
 }
