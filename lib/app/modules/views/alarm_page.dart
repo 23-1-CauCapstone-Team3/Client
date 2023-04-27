@@ -1,11 +1,9 @@
-import 'dart:developer';
+import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:last_transport/app/data/theme_data.dart';
-import 'package:last_transport/app/data/data.dart';
 import 'package:intl/intl.dart';
-import 'dart:async';
+import 'package:last_transport/app/data/theme_data.dart';
 
 import '../../data/alarmInfoDB.dart';
 import '../../data/models/alarm_info.dart';
@@ -22,6 +20,54 @@ class _AlarmPageState extends State<AlarmPage> {
   bool todayAlarm = false;
   bool todayWakeUpCheck = false;
   bool todayWakeUpHelp = false;
+
+  /// [S] alarmInfo DB 관련 변수 및 method
+  AlarmInfoProvider _alarmInfoProvider = AlarmInfoProvider();
+  Future<List<AlarmInfo>>? _alarms;
+  List<AlarmInfo>? _currentAlarms;
+  Future<AlarmInfo>? _todayAlarm;
+
+  void loadTodayAlarm() {
+    _todayAlarm = _alarmInfoProvider
+        .getTodayAlarm(DateFormat('yyyy-MM-dd').format(DateTime.now()));
+    if (mounted) setState(() {});
+    _todayAlarm?.then((data) {
+      if (data.alarmDate != "") {
+        todayAlarm = true;
+        destination = data.location;
+        // TODO: server에서 departureTime 가져오기?
+      }
+    });
+  }
+
+  void loadAlarms() {
+    _alarms = _alarmInfoProvider.getDB();
+    if (mounted) setState(() {});
+    _alarms?.then((data) {
+      data.removeWhere((item) =>
+          item.alarmDate == DateFormat('yyyy-MM-dd').format(DateTime.now()));
+    });
+  }
+
+  void insertAlarm(DateTime alarmDate, String location) {
+    _alarmInfoProvider.insert(AlarmInfo(
+        alarmDate: DateFormat('yyyy-MM-dd').format(alarmDate),
+        location: location));
+  }
+
+  void updateAlarm(AlarmInfo alarmInfo) {
+    _alarmInfoProvider.update(alarmInfo);
+  }
+
+  void deleteAlarm(AlarmInfo alarmInfo) {
+    _alarmInfoProvider.idDelete(alarmInfo);
+  }
+
+  void deleteDateAlarm(DateTime alarmDate) {
+    _alarmInfoProvider.dateDelete(DateFormat('yyyy-MM-dd').format(alarmDate));
+  }
+
+  /// [E] alarmInfo DB 관련 변수 및 method
 
   /// [S] 출발 시간 타이머 관련 변수 및 method
   DateTime departureTime =
@@ -49,7 +95,10 @@ class _AlarmPageState extends State<AlarmPage> {
     setState(() {
       final seconds = duration.inSeconds - reduceSecondsBy;
       if (seconds < 0) {
+        duration = const Duration(seconds: 0);
         _timer!.cancel();
+
+        deleteDateAlarm(departureTime);
       } else {
         duration = Duration(seconds: seconds);
       }
@@ -82,24 +131,6 @@ class _AlarmPageState extends State<AlarmPage> {
 
   /// [E] 새로운 알람 생성 관련 변수 및 method
 
-  /// [S] alarmInfo DB 관련 변수 및 method
-  AlarmInfoProvider _alarmInfoProvider = AlarmInfoProvider();
-  Future<List<AlarmInfo>>? _alarms;
-  List<AlarmInfo>? _currentAlarms;
-
-  void loadAlarms() {
-    _alarms = _alarmInfoProvider.getDB();
-    if (mounted) setState(() {});
-  }
-
-  void insertAlarm(DateTime alarmDate, String location) {
-    _alarmInfoProvider.insert(AlarmInfo(
-        alarmDate: DateFormat('yyyy-MM-dd').format(alarmDate),
-        location: location));
-  }
-
-  /// [E] alarmInfo DB 관련 변수 및 method
-
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -110,8 +141,7 @@ class _AlarmPageState extends State<AlarmPage> {
     // than having to individually change instances of widgets.
 
     /// [S] 오늘 막차 알림 정보 가져오기
-    // TODO: todayAlarm = ??
-    // TODO: if (todayAlarm) { destination = ??; departureTime = ?? }
+    loadTodayAlarm();
 
     if (todayAlarm) {
       _startTimer();
@@ -124,6 +154,7 @@ class _AlarmPageState extends State<AlarmPage> {
 
     /// [E] 오늘 막차 알림 정보 가져오기
 
+    /// 전체 알람 정보 가져오기
     loadAlarms();
 
     return Scaffold(
@@ -462,30 +493,29 @@ class _AlarmPageState extends State<AlarmPage> {
                                                     ),
                                                   ),
                                                 ]),
-                                                _TodayAlarmItem1(
-                                                    children: <Widget>[
-                                                      const Text(
-                                                        '목적지',
-                                                        style: TextStyle(
+                                                _TodayAlarmItem1(children: <
+                                                    Widget>[
+                                                  const Text(
+                                                    '목적지',
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            'NanumSquareNeo',
+                                                        color: Colors.white,
+                                                        fontSize: 15),
+                                                  ),
+                                                  CupertinoButton(
+                                                      onPressed: () {}, // TODO
+                                                      child: Text(
+                                                        '$newDestination >',
+                                                        // TODO - 목적지 변수
+                                                        style: const TextStyle(
                                                             fontFamily:
                                                                 'NanumSquareNeo',
-                                                            color: Colors.white,
+                                                            color:
+                                                                Colors.white54,
                                                             fontSize: 15),
-                                                      ),
-                                                      CupertinoButton(
-                                                          onPressed: () {},
-                                                          // TODO
-                                                          child: Text(
-                                                            '$newDestination >',
-                                                            // TODO - 목적지 변수
-                                                            style: const TextStyle(
-                                                                fontFamily:
-                                                                    'NanumSquareNeo',
-                                                                color: Colors
-                                                                    .white54,
-                                                                fontSize: 15),
-                                                          )),
-                                                    ]),
+                                                      )),
+                                                ]),
                                               ],
                                             ),
                                           ),
@@ -511,9 +541,10 @@ class _AlarmPageState extends State<AlarmPage> {
                   ),
                 )
               ]),
-              const SizedBox(height: 5),
+              const SizedBox(height: 13),
               const Divider(
                 color: Colors.white54,
+                height: 0,
               ),
               FutureBuilder<List<AlarmInfo>>(
                 future: _alarms,
@@ -525,32 +556,283 @@ class _AlarmPageState extends State<AlarmPage> {
                         physics: const NeverScrollableScrollPhysics(),
                         padding: const EdgeInsets.only(top: 0),
                         children: snapshot.data!.map<Widget>((alarm) {
-                          return Container(
-                              child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                DateFormat('yyyy.MM.dd (EE)', 'ko').format(
-                                    DateFormat('yyyy-MM-dd')
-                                        .parse(alarm.alarmDate)),
-                                style: TextStyle(
+                          return InkWell(
+                              onTap: () {
+                                showModalBottomSheet<void>(
+                                  backgroundColor:
+                                      CustomColors.sheetBackgroundColor,
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    DateTime newDate = DateFormat('yyyy-MM-dd')
+                                        .parse(alarm.alarmDate);
+                                    String newDestination = alarm.location;
+                                    return StatefulBuilder(
+                                        builder:
+                                            (BuildContext context, setState) =>
+                                                SizedBox(
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment(0.0, -0.9),
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: <Widget>[
+                                                        Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: <Widget>[
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                                style: TextButton
+                                                                    .styleFrom(
+                                                                  minimumSize:
+                                                                      Size.zero,
+                                                                  padding:
+                                                                      EdgeInsets
+                                                                          .zero,
+                                                                  tapTargetSize:
+                                                                      MaterialTapTargetSize
+                                                                          .shrinkWrap,
+                                                                ),
+                                                                child: Text(
+                                                                  '  취소',
+                                                                  style: TextStyle(
+                                                                      fontFamily:
+                                                                          'NanumSquareNeo',
+                                                                      color: Colors
+                                                                              .amber[
+                                                                          800],
+                                                                      fontSize:
+                                                                          20),
+                                                                ),
+                                                              ),
+                                                              const Text(
+                                                                '막차 알림 편집',
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        'NanumSquareNeo',
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        20),
+                                                              ),
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  // TODO: insert new alarm
+                                                                  if (newDate
+                                                                          .difference(
+                                                                              DateTime.now())
+                                                                          .inSeconds >
+                                                                      0) {
+                                                                    updateAlarm(AlarmInfo(
+                                                                        id: alarm
+                                                                            .id,
+                                                                        alarmDate:
+                                                                            DateFormat('yyyy-MM-dd').format(
+                                                                                newDate),
+                                                                        location:
+                                                                            newDestination));
+                                                                  }
+                                                                  setState(() =>
+                                                                      loadAlarms());
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                                style: TextButton
+                                                                    .styleFrom(
+                                                                  minimumSize:
+                                                                      Size.zero,
+                                                                  padding:
+                                                                      EdgeInsets
+                                                                          .zero,
+                                                                  tapTargetSize:
+                                                                      MaterialTapTargetSize
+                                                                          .shrinkWrap,
+                                                                ),
+                                                                child: Text(
+                                                                  '저장  ',
+                                                                  style: TextStyle(
+                                                                      fontFamily:
+                                                                          'NanumSquareNeo',
+                                                                      color: Colors
+                                                                              .amber[
+                                                                          800],
+                                                                      fontSize:
+                                                                          20),
+                                                                ),
+                                                              ),
+                                                            ]),
+                                                        const SizedBox(
+                                                            height: 20),
+                                                        Container(
+                                                          height: 100,
+                                                          width: 340,
+                                                          decoration: BoxDecoration(
+                                                              color: CustomColors
+                                                                  .tableBackgroundColor,
+                                                              borderRadius:
+                                                                  const BorderRadius
+                                                                          .all(
+                                                                      Radius.circular(
+                                                                          12))),
+                                                          child: Center(
+                                                            child: Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: <
+                                                                  Widget>[
+                                                                _TodayAlarmItem0(
+                                                                    children: <
+                                                                        Widget>[
+                                                                      const Text(
+                                                                        '날짜',
+                                                                        style: TextStyle(
+                                                                            fontFamily:
+                                                                                'NanumSquareNeo',
+                                                                            color:
+                                                                                Colors.white,
+                                                                            fontSize: 15),
+                                                                      ),
+                                                                      CupertinoButton(
+                                                                        onPressed:
+                                                                            () =>
+                                                                                _showDialog(
+                                                                          CupertinoDatePicker(
+                                                                            initialDateTime:
+                                                                                newDate,
+                                                                            mode:
+                                                                                CupertinoDatePickerMode.date,
+                                                                            use24hFormat:
+                                                                                true,
+                                                                            // This is called when the user changes the date.
+                                                                            onDateTimeChanged:
+                                                                                (DateTime date) {
+                                                                              setState(() => newDate = date);
+                                                                            },
+                                                                          ),
+                                                                        ),
+                                                                        // In this example, the date is formatted manually. You can
+                                                                        // use the intl package to format the value based on the
+                                                                        // user's locale settings.
+                                                                        child:
+                                                                            Text(
+                                                                          DateFormat('yyyy.MM.dd (EE) >', 'ko')
+                                                                              .format(newDate),
+                                                                          style: const TextStyle(
+                                                                              fontFamily: 'NanumSquareNeo',
+                                                                              color: Colors.white54,
+                                                                              fontSize: 15),
+                                                                        ),
+                                                                      ),
+                                                                    ]),
+                                                                _TodayAlarmItem1(
+                                                                    children: <
+                                                                        Widget>[
+                                                                      const Text(
+                                                                        '목적지',
+                                                                        style: TextStyle(
+                                                                            fontFamily:
+                                                                                'NanumSquareNeo',
+                                                                            color:
+                                                                                Colors.white,
+                                                                            fontSize: 15),
+                                                                      ),
+                                                                      CupertinoButton(
+                                                                          onPressed:
+                                                                              () {},
+                                                                          // TODO
+                                                                          child:
+                                                                              Text(
+                                                                            '$newDestination >',
+                                                                            // TODO - 목적지 변수
+                                                                            style: const TextStyle(
+                                                                                fontFamily: 'NanumSquareNeo',
+                                                                                color: Colors.white54,
+                                                                                fontSize: 15),
+                                                                          )),
+                                                                    ]),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                            height: 20),
+                                                        Container(
+                                                          height: 50,
+                                                          width: 340,
+                                                          decoration: BoxDecoration(
+                                                              color: CustomColors
+                                                                  .tableBackgroundColor,
+                                                              borderRadius:
+                                                                  const BorderRadius
+                                                                          .all(
+                                                                      Radius.circular(
+                                                                          12))),
+                                                          child: TextButton(
+                                                            onPressed: () {
+                                                              deleteAlarm(
+                                                                  alarm);
+                                                              setState(() =>
+                                                                  loadAlarms());
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            child: const Text(
+                                                              '알림 삭제',
+                                                              style: TextStyle(
+                                                                  fontFamily:
+                                                                      'NanumSquareNeo',
+                                                                  color: Colors
+                                                                      .red,
+                                                                  fontSize: 15),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ));
+                                  },
+                                );
+                              },
+                              child: Container(
+                                  child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  SizedBox(height: 8),
+                                  Text(
+                                    DateFormat('yyyy.MM.dd (EE)', 'ko').format(
+                                        DateFormat('yyyy-MM-dd')
+                                            .parse(alarm.alarmDate)),
+                                    style: TextStyle(
+                                        color: Colors.white54,
+                                        fontFamily: 'NanumSquareNeo',
+                                        fontSize: 30),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Text(
+                                    '${alarm.location}',
+                                    style: TextStyle(
+                                        color: Colors.white54,
+                                        fontFamily: 'NanumSquareNeo',
+                                        fontSize: 20),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Divider(
                                     color: Colors.white54,
-                                    fontFamily: 'NanumSquareNeo',
-                                    fontSize: 30),
-                              ),
-                              SizedBox(height: 10),
-                              Text(
-                                '목적지',
-                                style: TextStyle(
-                                    color: Colors.white54,
-                                    fontFamily: 'NanumSquareNeo',
-                                    fontSize: 20),
-                              ),
-                              Divider(
-                                color: Colors.white54,
-                              ),
-                            ],
-                          ));
+                                    thickness: 0,
+                                    height: 0,
+                                  ),
+                                ],
+                              )));
                         }).toList());
                   }
                   return Center(
