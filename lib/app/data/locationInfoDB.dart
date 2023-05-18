@@ -7,7 +7,7 @@ final String TABLENAME = 'locationInfo';
 
 class LocationInfoProvider {
   static final LocationInfoProvider _locationInfoProvider = LocationInfoProvider._internal();
-  LocationInfoProvider._internal(){
+  LocationInfoProvider._internal() {
     // init values...
 
     /*
@@ -25,26 +25,21 @@ class LocationInfoProvider {
 
   initDB() async {
     String path = join(await getDatabasesPath(), 'locationInfo.db');
-    return await openDatabase(
-        path,
-        version: 1,
-        onCreate: (db, version) async {
-          await db.execute('''
-            CREATE TABLE alarmInfo(
+    return await openDatabase(path, version: 1, onCreate: (db, version) async {
+      await db.execute('''
+            CREATE TABLE locationInfo(
               id INTEGER PRIMARY KEY AUTOINCREMENT,
-              location TEXT NOT NULL,
-              address TEXT NOT NULL
+              location TEXT NOT NULL UNIQUE,
+              address TEXT NOT NULL UNIQUE
             )
           ''');
-        },
-        onUpgrade: (db, oldVersion, newVersion) {}
-    );
+    }, onUpgrade: (db, oldVersion, newVersion) {});
   }
 
   Future<List<LocationInfo>> getDB() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db!.query(TABLENAME);
-    if( maps.isEmpty ) return [];
+    if (maps.isEmpty) return [];
     List<LocationInfo> list = List.generate(maps.length, (index) {
       return LocationInfo(
         id: maps[index]["id"],
