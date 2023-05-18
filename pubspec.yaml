@@ -35,6 +35,13 @@ dependencies:
   intl: ^0.17.0
   sqflite: ^2.2.7
   path_provider: ^2.0.14
+  get: ^4.1.4
+  http: ^0.13.5
+
+  geolocator: ^7.1.0
+
+  naver_map_plugin: ^0.9.6
+
   android_alarm_manager_plus:
     git:
       url: https://github.com/jja08111/plus_plugins.git
@@ -70,6 +77,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
+    - assets/img/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
