@@ -50,6 +50,17 @@ class LocationInfoProvider {
     return list;
   }
 
+  Future<String> getDefaultLocation() async {
+    final db = await database;
+    final List<Map<String, dynamic>> map = await db!.query(
+      TABLENAME,
+      where: "id = ?",
+      whereArgs: [1],
+    );
+    if (map.isEmpty) return "";
+    return map[0]["location"];
+  }
+
   Future<void> insert(LocationInfo locationInfo) async {
     final db = await database;
     locationInfo.id = await db?.insert(TABLENAME, locationInfo.toMap());

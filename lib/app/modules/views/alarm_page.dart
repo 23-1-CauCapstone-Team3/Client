@@ -6,7 +6,9 @@ import 'package:intl/intl.dart';
 import 'package:last_transport/app/data/theme_data.dart';
 
 import '../../data/alarmInfoDB.dart';
+import '../../data/locationInfoDB.dart';
 import '../../data/models/alarm_info.dart';
+import '../../data/models/location_info.dart';
 
 class AlarmPage extends StatefulWidget {
   const AlarmPage({Key? key}) : super(key: key);
@@ -64,6 +66,18 @@ class _AlarmPageState extends State<AlarmPage> {
   }
 
   /// [E] alarmInfo DB 관련 변수 및 method
+
+  /// [S] Location DB
+  final LocationInfoProvider _locationInfoProvider = LocationInfoProvider();
+  Future<List<LocationInfo>>? _locations;
+  List<LocationInfo>? _currentLocations;
+
+  void loadLocations() {
+    _locations = _locationInfoProvider.getDB();
+    if (mounted) setState(() {});
+  }
+
+  /// [E] Location DB
 
   /// [S] 출발 시간 타이머 관련 변수 및 method
   DateTime departureTime = DateTime.now().add(Duration(seconds: 10)); // DateTime.parse('2023-05-19 04:01:59'); //TODO: get from server
@@ -154,6 +168,9 @@ class _AlarmPageState extends State<AlarmPage> {
     /// 전체 알람 정보 가져오기
     loadAlarms();
 
+    /// 전체 장소 정보 가져오기
+    loadLocations();
+
     return Scaffold(
       backgroundColor: CustomColors.pageBackgroundColor,
       body: Container(
@@ -215,91 +232,7 @@ class _AlarmPageState extends State<AlarmPage> {
               const SizedBox(height: 20),
 
               /// [S] 오늘 막차 설정 창
-              Container(
-                height: 200,
-                decoration: BoxDecoration(color: CustomColors.tableBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(12))),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      _TodayAlarmItem0(children: <Widget>[
-                        const Text(
-                          '목적지',
-                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
-                        ),
-                        CupertinoButton(
-                            onPressed: () {}, // TODO
-                            child: Text(
-                              '$destination >', // TODO - 목적지 변수
-                              style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
-                            )),
-                      ]),
-                      _TodayAlarmItem1(children: <Widget>[
-                        const Text(
-                          '알림',
-                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
-                        ),
-                        CupertinoSwitch(
-                          // This bool value toggles the switch.
-                          value: todayAlarm,
-                          activeColor: CupertinoColors.activeGreen,
-                          onChanged: (bool? value) {
-                            // This is called when the user toggles the switch.
-                            setState(() {
-                              todayAlarm = value ?? false;
-                            });
-                            if (todayAlarm) {
-                              _startTimer();
-                            } else {
-                              _stopTimer();
-                            }
-                          },
-                        ),
-                      ]),
-                      _TodayAlarmItem1(children: <Widget>[
-                        const Text(
-                          '기상 체크',
-                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
-                        ),
-                        CupertinoSwitch(
-                          // This bool value toggles the switch.
-                          value: todayWakeUpCheck,
-                          activeColor: CupertinoColors.activeGreen,
-                          onChanged: (bool? value) {
-                            // This is called when the user toggles the switch.
-                            setState(() {
-                              if (todayWakeUpCheck || todayAlarm) {
-                                todayWakeUpCheck = value ?? false;
-                                //TODO: if (todayWakeUpCheck) {기상 체크 기능 켜기}
-                              }
-                            });
-                          },
-                        ),
-                      ]),
-                      _TodayAlarmItem1(children: <Widget>[
-                        const Text(
-                          '기상 도움 요청',
-                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
-                        ),
-                        CupertinoSwitch(
-                          // This bool value toggles the switch.
-                          value: todayWakeUpHelp,
-                          activeColor: CupertinoColors.activeGreen,
-                          onChanged: (bool? value) {
-                            // This is called when the user toggles the switch.
-                            setState(() {
-                              if (todayWakeUpHelp || todayAlarm) {
-                                todayWakeUpHelp = value ?? false;
-                                //TODO: if (todayWakeUpHelp) {기상 도움 요청 기능 켜기}
-                              }
-                            });
-                          },
-                        ),
-                      ]),
-                    ],
-                  ),
-                ),
-              ),
+              _setTodayAlarm(),
 
               /// [E] 오늘 막차 설정 창
 
@@ -321,110 +254,7 @@ class _AlarmPageState extends State<AlarmPage> {
                       builder: (BuildContext context) {
                         DateTime newDate = DateTime.now().add(Duration(days: 1));
                         String newDestination = '집'; // TODO
-                        return StatefulBuilder(
-                            builder: (BuildContext context, setState) => SizedBox(
-                                  height: MediaQuery.of(context).size.height * 0.92,
-                                  child: Align(
-                                    alignment: Alignment(0.0, -0.9),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            style: TextButton.styleFrom(
-                                              minimumSize: Size.zero,
-                                              padding: EdgeInsets.zero,
-                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                            ),
-                                            child: Text(
-                                              '  취소',
-                                              style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.amber[800], fontSize: 20),
-                                            ),
-                                          ),
-                                          const Text(
-                                            '막차 알림 추가',
-                                            style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
-                                          ),
-                                          TextButton(
-                                            onPressed: () {
-                                              // TODO: insert new alarm
-                                              if (newDate.difference(DateTime.now()).inSeconds > 0) {
-                                                insertAlarm(newDate, newDestination);
-                                              }
-                                              setState(() => loadAlarms());
-                                              Navigator.pop(context);
-                                            },
-                                            style: TextButton.styleFrom(
-                                              minimumSize: Size.zero,
-                                              padding: EdgeInsets.zero,
-                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                            ),
-                                            child: Text(
-                                              '저장  ',
-                                              style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.amber[800], fontSize: 20),
-                                            ),
-                                          ),
-                                        ]),
-                                        const SizedBox(height: 20),
-                                        Container(
-                                          height: 100,
-                                          width: 340,
-                                          decoration: BoxDecoration(color: CustomColors.tableBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(12))),
-                                          child: Center(
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: <Widget>[
-                                                _TodayAlarmItem0(children: <Widget>[
-                                                  const Text(
-                                                    '날짜',
-                                                    style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
-                                                  ),
-                                                  CupertinoButton(
-                                                    onPressed: () => _showDialog(
-                                                      CupertinoDatePicker(
-                                                        initialDateTime: newDate,
-                                                        mode: CupertinoDatePickerMode.date,
-                                                        use24hFormat: true,
-                                                        // This is called when the user changes the date.
-                                                        onDateTimeChanged: (DateTime date) {
-                                                          setState(() => newDate = date);
-                                                        },
-                                                      ),
-                                                    ),
-                                                    // In this example, the date is formatted manually. You can
-                                                    // use the intl package to format the value based on the
-                                                    // user's locale settings.
-                                                    child: Text(
-                                                      DateFormat('yyyy.MM.dd (EE) >', 'ko').format(newDate),
-                                                      style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
-                                                    ),
-                                                  ),
-                                                ]),
-                                                _TodayAlarmItem1(children: <Widget>[
-                                                  const Text(
-                                                    '목적지',
-                                                    style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
-                                                  ),
-                                                  CupertinoButton(
-                                                      onPressed: () {}, // TODO
-                                                      child: Text(
-                                                        '$newDestination >',
-                                                        // TODO - 목적지 변수
-                                                        style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
-                                                      )),
-                                                ]),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ));
+                        return _addFutureAlarm(newDate, newDestination);
                       },
                     );
                   },
@@ -444,182 +274,7 @@ class _AlarmPageState extends State<AlarmPage> {
                 color: Colors.white54,
                 height: 0,
               ),
-              FutureBuilder<List<AlarmInfo>>(
-                future: _alarms,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    _currentAlarms = snapshot.data;
-                    return ListView(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.only(top: 0),
-                        children: snapshot.data!.map<Widget>((alarm) {
-                          return InkWell(
-                              onTap: () {
-                                showModalBottomSheet<void>(
-                                  isScrollControlled: true,
-                                  backgroundColor: CustomColors.sheetBackgroundColor,
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    DateTime newDate = DateFormat('yyyy-MM-dd').parse(alarm.alarmDate);
-                                    String newDestination = alarm.location;
-                                    return StatefulBuilder(
-                                        builder: (BuildContext context, setState) => SizedBox(
-                                              height: MediaQuery.of(context).size.height * 0.92,
-                                              child: Align(
-                                                alignment: Alignment(0.0, -0.9),
-                                                child: Column(
-                                                  mainAxisAlignment: MainAxisAlignment.start,
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: <Widget>[
-                                                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(context);
-                                                        },
-                                                        style: TextButton.styleFrom(
-                                                          minimumSize: Size.zero,
-                                                          padding: EdgeInsets.zero,
-                                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                        ),
-                                                        child: Text(
-                                                          '  취소',
-                                                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.amber[800], fontSize: 20),
-                                                        ),
-                                                      ),
-                                                      const Text(
-                                                        '막차 알림 편집',
-                                                        style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
-                                                      ),
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          // TODO: insert new alarm
-                                                          if (newDate.difference(DateTime.now()).inSeconds > 0) {
-                                                            updateAlarm(AlarmInfo(id: alarm.id, alarmDate: DateFormat('yyyy-MM-dd').format(newDate), location: newDestination));
-                                                          }
-                                                          setState(() => loadAlarms());
-                                                          Navigator.pop(context);
-                                                        },
-                                                        style: TextButton.styleFrom(
-                                                          minimumSize: Size.zero,
-                                                          padding: EdgeInsets.zero,
-                                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                        ),
-                                                        child: Text(
-                                                          '저장  ',
-                                                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.amber[800], fontSize: 20),
-                                                        ),
-                                                      ),
-                                                    ]),
-                                                    const SizedBox(height: 20),
-                                                    Container(
-                                                      height: 100,
-                                                      width: 340,
-                                                      decoration: BoxDecoration(color: CustomColors.tableBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(12))),
-                                                      child: Center(
-                                                        child: Column(
-                                                          mainAxisAlignment: MainAxisAlignment.center,
-                                                          children: <Widget>[
-                                                            _TodayAlarmItem0(children: <Widget>[
-                                                              const Text(
-                                                                '날짜',
-                                                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
-                                                              ),
-                                                              CupertinoButton(
-                                                                onPressed: () => _showDialog(
-                                                                  CupertinoDatePicker(
-                                                                    initialDateTime: newDate,
-                                                                    mode: CupertinoDatePickerMode.date,
-                                                                    use24hFormat: true,
-                                                                    // This is called when the user changes the date.
-                                                                    onDateTimeChanged: (DateTime date) {
-                                                                      setState(() => newDate = date);
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                                // In this example, the date is formatted manually. You can
-                                                                // use the intl package to format the value based on the
-                                                                // user's locale settings.
-                                                                child: Text(
-                                                                  DateFormat('yyyy.MM.dd (EE) >', 'ko').format(newDate),
-                                                                  style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
-                                                                ),
-                                                              ),
-                                                            ]),
-                                                            _TodayAlarmItem1(children: <Widget>[
-                                                              const Text(
-                                                                '목적지',
-                                                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
-                                                              ),
-                                                              CupertinoButton(
-                                                                  onPressed: () {},
-                                                                  // TODO
-                                                                  child: Text(
-                                                                    '$newDestination >',
-                                                                    // TODO - 목적지 변수
-                                                                    style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
-                                                                  )),
-                                                            ]),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 20),
-                                                    Container(
-                                                      height: 50,
-                                                      width: 340,
-                                                      decoration: BoxDecoration(color: CustomColors.tableBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(12))),
-                                                      child: TextButton(
-                                                        onPressed: () {
-                                                          deleteAlarm(alarm);
-                                                          setState(() => loadAlarms());
-                                                          Navigator.pop(context);
-                                                        },
-                                                        child: const Text(
-                                                          '알림 삭제',
-                                                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.red, fontSize: 15),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ));
-                                  },
-                                );
-                              },
-                              child: Container(
-                                  child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  SizedBox(height: 8),
-                                  Text(
-                                    DateFormat('yyyy.MM.dd (EE)', 'ko').format(DateFormat('yyyy-MM-dd').parse(alarm.alarmDate)),
-                                    style: TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 30),
-                                  ),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    '${alarm.location}',
-                                    style: TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 20),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Divider(
-                                    color: Colors.white54,
-                                    thickness: 0,
-                                    height: 0,
-                                  ),
-                                ],
-                              )));
-                        }).toList());
-                  }
-                  return Center(
-                    child: Text(
-                      '알림 없음',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  );
-                },
-              )
+              _futureAlarms()
 
               /// [E] 기타 일림 view
             ],
@@ -627,6 +282,691 @@ class _AlarmPageState extends State<AlarmPage> {
         ),
       ),
     );
+  }
+
+  StatefulBuilder _addFutureAlarm(DateTime newDate, String newDestination) {
+    return StatefulBuilder(
+        builder: (BuildContext context, setState) => SizedBox(
+              height: MediaQuery.of(context).size.height * 0.92,
+              child: Align(
+                alignment: Alignment(0.0, -0.9),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        style: TextButton.styleFrom(
+                          minimumSize: Size.zero,
+                          padding: EdgeInsets.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          '  취소',
+                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.amber[800], fontSize: 20),
+                        ),
+                      ),
+                      const Text(
+                        '막차 알림 추가',
+                        style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          if (newDate.difference(DateTime.now()).inSeconds > 0) {
+                            insertAlarm(newDate, newDestination);
+                          }
+                          setState(() => loadAlarms());
+                          Navigator.pop(context);
+                        },
+                        style: TextButton.styleFrom(
+                          minimumSize: Size.zero,
+                          padding: EdgeInsets.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          '저장  ',
+                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.amber[800], fontSize: 20),
+                        ),
+                      ),
+                    ]),
+                    const SizedBox(height: 20),
+                    Container(
+                      height: 100,
+                      width: 340,
+                      decoration: BoxDecoration(color: CustomColors.tableBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(12))),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            _TodayAlarmItem0(children: <Widget>[
+                              const Text(
+                                '날짜',
+                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+                              ),
+                              CupertinoButton(
+                                onPressed: () => _showDialog(
+                                  CupertinoDatePicker(
+                                    initialDateTime: newDate,
+                                    mode: CupertinoDatePickerMode.date,
+                                    use24hFormat: true,
+                                    // This is called when the user changes the date.
+                                    onDateTimeChanged: (DateTime date) {
+                                      setState(() => newDate = date);
+                                    },
+                                  ),
+                                ),
+                                // In this example, the date is formatted manually. You can
+                                // use the intl package to format the value based on the
+                                // user's locale settings.
+                                child: Text(
+                                  DateFormat('yyyy.MM.dd (EE) >', 'ko').format(newDate),
+                                  style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
+                                ),
+                              ),
+                            ]),
+                            _TodayAlarmItem1(children: <Widget>[
+                              const Text(
+                                '목적지',
+                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+                              ),
+                              CupertinoButton(
+                                  onPressed: () {
+                                    showModalBottomSheet<void>(
+                                      isScrollControlled: true,
+                                      backgroundColor: CustomColors.sheetBackgroundColor,
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return StatefulBuilder(
+                                            builder: (BuildContext context, StateSetter bottomState) => SizedBox(
+                                                height: MediaQuery.of(context).size.height * 0.92,
+                                                child: Container(
+                                                    padding: const EdgeInsets.fromLTRB(15, 25, 15, 0),
+                                                    child: Column(mainAxisAlignment: MainAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: <Widget>[
+                                                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: const <Widget>[
+                                                        Text(
+                                                          '저장된 장소',
+                                                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                                                        ),
+                                                      ]),
+                                                      const SizedBox(height: 16),
+                                                      const Divider(
+                                                        color: Colors.white54,
+                                                        height: 0,
+                                                      ),
+                                                      FutureBuilder<List<LocationInfo>>(
+                                                        future: _locations,
+                                                        builder: (context, snapshot) {
+                                                          if (snapshot.hasData) {
+                                                            _currentLocations = snapshot.data;
+                                                            return ListView(
+                                                                shrinkWrap: true,
+                                                                physics: const NeverScrollableScrollPhysics(),
+                                                                padding: const EdgeInsets.only(top: 0),
+                                                                children: snapshot.data!.map<Widget>((location) {
+                                                                  return InkWell(
+                                                                      onTap: () {
+                                                                        bottomState(() {
+                                                                          setState(() {
+                                                                            newDestination = location.location;
+                                                                            // TODO: 도로명 주소 혹은 좌표 추가
+                                                                          });
+                                                                        });
+                                                                        Navigator.pop(context);
+                                                                      },
+                                                                      child: Column(children: <Widget>[
+                                                                        SizedBox(height: 16),
+                                                                        Row(
+                                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                                          children: <Widget>[
+                                                                            Image.asset(
+                                                                              'assets/img/location.png',
+                                                                              width: 25,
+                                                                              height: 25,
+                                                                              fit: BoxFit.fill,
+                                                                            ),
+                                                                            SizedBox(width: 10),
+                                                                            SizedBox(
+                                                                              width: 50,
+                                                                              height: 25,
+                                                                              child: FittedBox(
+                                                                                fit: BoxFit.scaleDown,
+                                                                                alignment: Alignment.centerLeft,
+                                                                                child: Text(
+                                                                                  location.location,
+                                                                                  style: const TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 18),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                            SizedBox(
+                                                                              width: 235,
+                                                                              height: 25,
+                                                                              child: FittedBox(
+                                                                                fit: BoxFit.scaleDown,
+                                                                                alignment: Alignment.centerLeft,
+                                                                                child: Text(
+                                                                                  location.address,
+                                                                                  style: const TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 18),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                        const SizedBox(height: 16),
+                                                                        const Divider(
+                                                                          color: Colors.white54,
+                                                                          thickness: 0,
+                                                                          height: 0,
+                                                                        ),
+                                                                      ]));
+                                                                }).toList());
+                                                          }
+                                                          return const Center(
+                                                            child: Text(
+                                                              '내 장소 없음',
+                                                              style: TextStyle(color: Colors.white),
+                                                            ),
+                                                          );
+                                                        },
+                                                      )
+                                                    ]))));
+                                      },
+                                    ).then((value) {
+                                      setState(() {});
+                                    });
+                                  },
+                                  child: Text(
+                                    '$newDestination >',
+                                    // TODO - 목적지 변수
+                                    style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
+                                  )),
+                            ]),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ));
+  }
+
+  FutureBuilder<List<AlarmInfo>> _futureAlarms() {
+    return FutureBuilder<List<AlarmInfo>>(
+      future: _alarms,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          _currentAlarms = snapshot.data;
+          return ListView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(top: 0),
+              children: snapshot.data!.map<Widget>((alarm) {
+                return InkWell(
+                    onTap: () {
+                      showModalBottomSheet<void>(
+                        isScrollControlled: true,
+                        backgroundColor: CustomColors.sheetBackgroundColor,
+                        context: context,
+                        builder: (BuildContext context) {
+                          DateTime newDate = DateFormat('yyyy-MM-dd').parse(alarm.alarmDate);
+                          String newDestination = alarm.location;
+                          return StatefulBuilder(
+                              builder: (BuildContext context, setState) => SizedBox(
+                                    height: MediaQuery.of(context).size.height * 0.92,
+                                    child: Align(
+                                      alignment: Alignment(0.0, -0.9),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: <Widget>[
+                                          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              style: TextButton.styleFrom(
+                                                minimumSize: Size.zero,
+                                                padding: EdgeInsets.zero,
+                                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                              ),
+                                              child: Text(
+                                                '  취소',
+                                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.amber[800], fontSize: 20),
+                                              ),
+                                            ),
+                                            const Text(
+                                              '막차 알림 편집',
+                                              style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                if (newDate.difference(DateTime.now()).inSeconds > 0) {
+                                                  updateAlarm(AlarmInfo(id: alarm.id, alarmDate: DateFormat('yyyy-MM-dd').format(newDate), location: newDestination));
+                                                }
+                                                setState(() => loadAlarms());
+                                                Navigator.pop(context);
+                                              },
+                                              style: TextButton.styleFrom(
+                                                minimumSize: Size.zero,
+                                                padding: EdgeInsets.zero,
+                                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                              ),
+                                              child: Text(
+                                                '저장  ',
+                                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.amber[800], fontSize: 20),
+                                              ),
+                                            ),
+                                          ]),
+                                          const SizedBox(height: 20),
+                                          Container(
+                                            height: 100,
+                                            width: 340,
+                                            decoration: BoxDecoration(color: CustomColors.tableBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(12))),
+                                            child: Center(
+                                              child: Column(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: <Widget>[
+                                                  _TodayAlarmItem0(children: <Widget>[
+                                                    const Text(
+                                                      '날짜',
+                                                      style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+                                                    ),
+                                                    CupertinoButton(
+                                                      onPressed: () => _showDialog(
+                                                        CupertinoDatePicker(
+                                                          initialDateTime: newDate,
+                                                          mode: CupertinoDatePickerMode.date,
+                                                          use24hFormat: true,
+                                                          // This is called when the user changes the date.
+                                                          onDateTimeChanged: (DateTime date) {
+                                                            setState(() => newDate = date);
+                                                          },
+                                                        ),
+                                                      ),
+                                                      // In this example, the date is formatted manually. You can
+                                                      // use the intl package to format the value based on the
+                                                      // user's locale settings.
+                                                      child: Text(
+                                                        DateFormat('yyyy.MM.dd (EE) >', 'ko').format(newDate),
+                                                        style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
+                                                      ),
+                                                    ),
+                                                  ]),
+                                                  _TodayAlarmItem1(children: <Widget>[
+                                                    const Text(
+                                                      '목적지',
+                                                      style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+                                                    ),
+                                                    CupertinoButton(
+                                                        onPressed: () {
+                                                          showModalBottomSheet<void>(
+                                                            isScrollControlled: true,
+                                                            backgroundColor: CustomColors.sheetBackgroundColor,
+                                                            context: context,
+                                                            builder: (BuildContext context) {
+                                                              return StatefulBuilder(
+                                                                  builder: (BuildContext context, StateSetter bottomState) => SizedBox(
+                                                                      height: MediaQuery.of(context).size.height * 0.92,
+                                                                      child: Container(
+                                                                          padding: const EdgeInsets.fromLTRB(15, 25, 15, 0),
+                                                                          child: Column(mainAxisAlignment: MainAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: <Widget>[
+                                                                            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: const <Widget>[
+                                                                              Text(
+                                                                                '저장된 장소',
+                                                                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                                                                              ),
+                                                                            ]),
+                                                                            const SizedBox(height: 16),
+                                                                            const Divider(
+                                                                              color: Colors.white54,
+                                                                              height: 0,
+                                                                            ),
+                                                                            FutureBuilder<List<LocationInfo>>(
+                                                                              future: _locations,
+                                                                              builder: (context, snapshot) {
+                                                                                if (snapshot.hasData) {
+                                                                                  _currentLocations = snapshot.data;
+                                                                                  return ListView(
+                                                                                      shrinkWrap: true,
+                                                                                      physics: const NeverScrollableScrollPhysics(),
+                                                                                      padding: const EdgeInsets.only(top: 0),
+                                                                                      children: snapshot.data!.map<Widget>((location) {
+                                                                                        return InkWell(
+                                                                                            onTap: () {
+                                                                                              bottomState(() {
+                                                                                                setState(() {
+                                                                                                  newDestination = location.location;
+                                                                                                  // TODO: 도로명 주소 혹은 좌표 추가
+                                                                                                });
+                                                                                              });
+                                                                                              Navigator.pop(context);
+                                                                                            },
+                                                                                            child: Column(children: <Widget>[
+                                                                                              SizedBox(height: 16),
+                                                                                              Row(
+                                                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                                children: <Widget>[
+                                                                                                  Image.asset(
+                                                                                                    'assets/img/location.png',
+                                                                                                    width: 25,
+                                                                                                    height: 25,
+                                                                                                    fit: BoxFit.fill,
+                                                                                                  ),
+                                                                                                  SizedBox(width: 10),
+                                                                                                  SizedBox(
+                                                                                                    width: 50,
+                                                                                                    height: 25,
+                                                                                                    child: FittedBox(
+                                                                                                      fit: BoxFit.scaleDown,
+                                                                                                      alignment: Alignment.centerLeft,
+                                                                                                      child: Text(
+                                                                                                        location.location,
+                                                                                                        style: const TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 18),
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                  SizedBox(
+                                                                                                    width: 235,
+                                                                                                    height: 25,
+                                                                                                    child: FittedBox(
+                                                                                                      fit: BoxFit.scaleDown,
+                                                                                                      alignment: Alignment.centerLeft,
+                                                                                                      child: Text(
+                                                                                                        location.address,
+                                                                                                        style: const TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 18),
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                ],
+                                                                                              ),
+                                                                                              const SizedBox(height: 16),
+                                                                                              const Divider(
+                                                                                                color: Colors.white54,
+                                                                                                thickness: 0,
+                                                                                                height: 0,
+                                                                                              ),
+                                                                                            ]));
+                                                                                      }).toList());
+                                                                                }
+                                                                                return const Center(
+                                                                                  child: Text(
+                                                                                    '내 장소 없음',
+                                                                                    style: TextStyle(color: Colors.white),
+                                                                                  ),
+                                                                                );
+                                                                              },
+                                                                            )
+                                                                          ]))));
+                                                            },
+                                                          ).then((value) {
+                                                            setState(() {});
+                                                          });
+                                                        },
+                                                        // TODO
+                                                        child: Text(
+                                                          '$newDestination >',
+                                                          // TODO - 목적지 변수
+                                                          style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
+                                                        )),
+                                                  ]),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 20),
+                                          Container(
+                                            height: 50,
+                                            width: 340,
+                                            decoration: BoxDecoration(color: CustomColors.tableBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(12))),
+                                            child: TextButton(
+                                              onPressed: () {
+                                                deleteAlarm(alarm);
+                                                setState(() => loadAlarms());
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text(
+                                                '알림 삭제',
+                                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.red, fontSize: 15),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ));
+                        },
+                      );
+                    },
+                    child: Container(
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        SizedBox(height: 8),
+                        Text(
+                          DateFormat('yyyy.MM.dd (EE)', 'ko').format(DateFormat('yyyy-MM-dd').parse(alarm.alarmDate)),
+                          style: TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 30),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          '${alarm.location}',
+                          style: TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 20),
+                        ),
+                        SizedBox(height: 8),
+                        Divider(
+                          color: Colors.white54,
+                          thickness: 0,
+                          height: 0,
+                        ),
+                      ],
+                    )));
+              }).toList());
+        }
+        return Center(
+          child: Text(
+            '알림 없음',
+            style: TextStyle(color: Colors.white),
+          ),
+        );
+      },
+    );
+  }
+
+  Container _setTodayAlarm() {
+    return Container(
+      height: 200,
+      decoration: BoxDecoration(color: CustomColors.tableBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(12))),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            _TodayAlarmItem0(children: <Widget>[
+              const Text(
+                '목적지',
+                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+              ),
+              CupertinoButton(
+                  onPressed: () {
+                    showModalBottomSheet<void>(
+                      isScrollControlled: true,
+                      backgroundColor: CustomColors.sheetBackgroundColor,
+                      context: context,
+                      builder: (BuildContext context) {
+                        return _modifyDestination();
+                      },
+                    ).then((value) {
+                      setState(() {});
+                    });
+                  },
+                  child: Text(
+                    '$destination >', // TODO - 목적지 변수
+                    style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
+                  )),
+            ]),
+            _TodayAlarmItem1(children: <Widget>[
+              const Text(
+                '알림',
+                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+              ),
+              CupertinoSwitch(
+                // This bool value toggles the switch.
+                value: todayAlarm,
+                activeColor: CupertinoColors.activeGreen,
+                onChanged: (bool? value) {
+                  // This is called when the user toggles the switch.
+                  setState(() {
+                    todayAlarm = value ?? false;
+                  });
+                  if (todayAlarm) {
+                    _startTimer();
+                  } else {
+                    _stopTimer();
+                  }
+                },
+              ),
+            ]),
+            _TodayAlarmItem1(children: <Widget>[
+              const Text(
+                '기상 체크',
+                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+              ),
+              CupertinoSwitch(
+                // This bool value toggles the switch.
+                value: todayWakeUpCheck,
+                activeColor: CupertinoColors.activeGreen,
+                onChanged: (bool? value) {
+                  // This is called when the user toggles the switch.
+                  setState(() {
+                    if (todayWakeUpCheck || todayAlarm) {
+                      todayWakeUpCheck = value ?? false;
+                      //TODO: if (todayWakeUpCheck) {기상 체크 기능 켜기}
+                    }
+                  });
+                },
+              ),
+            ]),
+            _TodayAlarmItem1(children: <Widget>[
+              const Text(
+                '기상 도움 요청',
+                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+              ),
+              CupertinoSwitch(
+                // This bool value toggles the switch.
+                value: todayWakeUpHelp,
+                activeColor: CupertinoColors.activeGreen,
+                onChanged: (bool? value) {
+                  // This is called when the user toggles the switch.
+                  setState(() {
+                    if (todayWakeUpHelp || todayAlarm) {
+                      todayWakeUpHelp = value ?? false;
+                      //TODO: if (todayWakeUpHelp) {기상 도움 요청 기능 켜기}
+                    }
+                  });
+                },
+              ),
+            ]),
+          ],
+        ),
+      ),
+    );
+  }
+
+  StatefulBuilder _modifyDestination() {
+    return StatefulBuilder(
+        builder: (BuildContext context, StateSetter bottomState) => SizedBox(
+            height: MediaQuery.of(context).size.height * 0.92,
+            child: Container(
+                padding: const EdgeInsets.fromLTRB(15, 25, 15, 0),
+                child: Column(mainAxisAlignment: MainAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: <Widget>[
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: const <Widget>[
+                    Text(
+                      '저장된 장소',
+                      style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                    ),
+                  ]),
+                  const SizedBox(height: 16),
+                  const Divider(
+                    color: Colors.white54,
+                    height: 0,
+                  ),
+                  FutureBuilder<List<LocationInfo>>(
+                    future: _locations,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        _currentLocations = snapshot.data;
+                        return ListView(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: const EdgeInsets.only(top: 0),
+                            children: snapshot.data!.map<Widget>((location) {
+                              return InkWell(
+                                  onTap: () {
+                                    bottomState(() {
+                                      setState(() {
+                                        destination = location.location;
+                                        // TODO: 도로명 주소 혹은 좌표 추가
+                                      });
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                  child: Column(children: <Widget>[
+                                    SizedBox(height: 16),
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Image.asset(
+                                          'assets/img/location.png',
+                                          width: 25,
+                                          height: 25,
+                                          fit: BoxFit.fill,
+                                        ),
+                                        SizedBox(width: 10),
+                                        SizedBox(
+                                          width: 50,
+                                          height: 25,
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              location.location,
+                                              style: const TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 18),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 235,
+                                          height: 25,
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              location.address,
+                                              style: const TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 18),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    const Divider(
+                                      color: Colors.white54,
+                                      thickness: 0,
+                                      height: 0,
+                                    ),
+                                  ]));
+                            }).toList());
+                      }
+                      return const Center(
+                        child: Text(
+                          '내 장소 없음',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    },
+                  )
+                ]))));
   }
 }
 
