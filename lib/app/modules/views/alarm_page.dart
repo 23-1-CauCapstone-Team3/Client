@@ -69,7 +69,6 @@ class _AlarmPageState extends State<AlarmPage> {
   DateTime departureTime = DateTime.now().add(Duration(seconds: 10)); // DateTime.parse('2023-05-19 04:01:59'); //TODO: get from server
   Timer? _timer;
   bool _flagTimer = false;
-  bool _flagTimerWork = false;
   Duration duration = const Duration(seconds: 1);
 
   void _startTimer() {
@@ -85,7 +84,7 @@ class _AlarmPageState extends State<AlarmPage> {
   void _stopTimer() {
     setState(() {
       _timer!.cancel();
-      _flagTimerWork = false;
+      _flagTimer = false;
     });
   }
 
@@ -95,7 +94,7 @@ class _AlarmPageState extends State<AlarmPage> {
       final seconds = duration.inSeconds - reduceSecondsBy;
       if (seconds - 1 < 0) {
         duration = const Duration(seconds: 0);
-        _stopTimer();
+        _timer!.cancel();
         deleteDateAlarm(departureTime);
       } else {
         duration = Duration(seconds: seconds);
