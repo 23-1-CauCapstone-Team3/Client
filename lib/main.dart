@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         Locale('ko', 'KR'),
         // Locale('es', ''), // Spanish, no country code
       ],
-      locale:const Locale('ko'),
+      locale: const Locale('ko'),
       theme: ThemeData(
         // This is the theme of your application.
         //

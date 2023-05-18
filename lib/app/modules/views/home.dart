@@ -12,14 +12,9 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
   int _selectedIndex = 1;
 
-  static List<Widget> pages = <Widget>[
-    CurrentRoutePage(),
-    AlarmPage(),
-    MyLocationPage()
-  ];
+  static List<Widget> pages = <Widget>[CurrentRoutePage(), AlarmPage(), MyLocationPage()];
 
   void _onItemTapped(int index) {
     setState(() {
