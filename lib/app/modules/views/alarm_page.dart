@@ -66,7 +66,7 @@ class _AlarmPageState extends State<AlarmPage> {
   /// [E] alarmInfo DB 관련 변수 및 method
 
   /// [S] 출발 시간 타이머 관련 변수 및 method
-  DateTime departureTime = DateTime.parse('2023-04-29 00:38:43'); //TODO: get from server
+  DateTime departureTime = DateTime.now().add(Duration(seconds: 10)); // DateTime.parse('2023-05-19 04:01:59'); //TODO: get from server
   Timer? _timer;
   bool _flagTimer = false;
   bool _flagTimerWork = false;
@@ -85,7 +85,7 @@ class _AlarmPageState extends State<AlarmPage> {
   void _stopTimer() {
     setState(() {
       _timer!.cancel();
-      _flagTimer = false;
+      _flagTimerWork = false;
     });
   }
 
@@ -93,10 +93,9 @@ class _AlarmPageState extends State<AlarmPage> {
     const reduceSecondsBy = 1;
     setState(() {
       final seconds = duration.inSeconds - reduceSecondsBy;
-      if (seconds < 0) {
+      if (seconds - 1 < 0) {
         duration = const Duration(seconds: 0);
-        _timer!.cancel();
-        _flagTimer = false;
+        _stopTimer();
         deleteDateAlarm(departureTime);
       } else {
         duration = Duration(seconds: seconds);
