@@ -43,14 +43,22 @@ class _MyLocationPageState extends State<MyLocationPage> {
   late TextEditingController _textController;
   late TextEditingController _addressTextController;
 
-  String result = '';
-  List data = [];
+  late String result;
+  late List data;
+  late String address;
+  late String x;
+  late String y;
 
   @override
   void initState() {
     super.initState();
     _textController = TextEditingController(text: '');
     _addressTextController = TextEditingController(text: '');
+    result = '';
+    data = [];
+    address = '';
+    x = '';
+    y = '';
   }
 
   @override
@@ -80,18 +88,18 @@ class _MyLocationPageState extends State<MyLocationPage> {
                 ),
                 onPressed: () {
                   _textController.clear();
-                  String address = '';
+                  address = '';
                   //TODO: insert new Location
                   showModalBottomSheet<void>(
                     isScrollControlled: true,
                     backgroundColor: CustomColors.sheetBackgroundColor,
                     context: context,
                     builder: (BuildContext context) {
-                      // DateTime newDate = DateTime.now().add(Duration(days: 1));
-                      // String newDestination = '집';
-                      return _addNewLocation(address);
+                      return _addNewLocation();
                     },
-                  );
+                  ).then((value) {
+                    setState(() {});
+                  });
                 },
               )
             ]),
@@ -128,12 +136,12 @@ class _MyLocationPageState extends State<MyLocationPage> {
             ));
   }
 
-  StatefulBuilder _addNewLocation(String address) {
+  StatefulBuilder _addNewLocation() {
     return StatefulBuilder(
-        builder: (BuildContext context, setState) => SizedBox(
+        builder: (BuildContext context, StateSetter bottomState) => SizedBox(
               height: MediaQuery.of(context).size.height * 0.92,
               child: Align(
-                alignment: Alignment(0.0, -0.9),
+                alignment: const Alignment(0.0, -0.9),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -159,9 +167,11 @@ class _MyLocationPageState extends State<MyLocationPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          // TODO: insert new alarm
+                          // TODO: insert new location
                           insertLocation(_textController.text, address);
-                          setState(() => loadLocations());
+                          bottomState(() {
+                            setState(() => loadLocations());
+                          });
                           Navigator.pop(context);
                         },
                         style: TextButton.styleFrom(
@@ -203,48 +213,18 @@ class _MyLocationPageState extends State<MyLocationPage> {
                                   style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
                                 ),
                               )
-
-                              // CupertinoButton(
-                              //   onPressed: () => _showDialog(
-                              //     CupertinoDatePicker(
-                              //       initialDateTime: newDate,
-                              //       mode:
-                              //           CupertinoDatePickerMode
-                              //               .date,
-                              //       use24hFormat: true,
-                              //       // This is called when the user changes the date.
-                              //       onDateTimeChanged:
-                              //           (DateTime date) {
-                              //         setState(() =>
-                              //             newDate = date);
-                              //       },
-                              //     ),
-                              //   ),
-                              //   // In this example, the date is formatted manually. You can
-                              //   // use the intl package to format the value based on the
-                              //   // user's locale settings.
-                              //   child: Text(
-                              //       // TODO
-                              //       'text'
-                              //       // DateFormat(
-                              //       //         'yyyy.MM.dd (EE) >',
-                              //       //         'ko')
-                              //       //     .format(newDate),
-                              //       // style: const TextStyle(
-                              //       //     fontFamily:
-                              //       //         'NanumSquareNeo',
-                              //       //     color: Colors.white54,
-                              //       //     fontSize: 15),
-                              //       ),
-                              // ),
                             ]),
                             _LocationItem1(children: <Widget>[
                               const Text(
                                 '주소',
                                 style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
                               ),
+                              // TODO: 우측에 생기는 Padding 없애기
                               CupertinoButton(
                                   onPressed: () {
+                                    _addressTextController.clear();
+                                    data.clear();
+                                    result = '';
                                     showModalBottomSheet<void>(
                                       isScrollControlled: true,
                                       backgroundColor: CustomColors.sheetBackgroundColor,
@@ -252,7 +232,11 @@ class _MyLocationPageState extends State<MyLocationPage> {
                                       builder: (BuildContext context) {
                                         return _searchLocation();
                                       },
-                                    );
+                                    ).then((value) {
+                                      bottomState(() {
+                                        setState(() {});
+                                      });
+                                    });
                                   }, // TODO
                                   child: Text(
                                     address,
@@ -271,11 +255,13 @@ class _MyLocationPageState extends State<MyLocationPage> {
   }
 
   StatefulBuilder _searchLocation() {
+    ScrollController _scrollController = new ScrollController();
+
     return StatefulBuilder(
-        builder: (BuildContext context, setState) => SizedBox(
+        builder: (BuildContext context, StateSetter bottomState) => SizedBox(
             height: MediaQuery.of(context).size.height * 0.92,
-            child: Align(
-                alignment: const Alignment(0.0, -0.9),
+            child: Container(
+                padding: const EdgeInsets.fromLTRB(15, 25, 15, 0),
                 child: Column(mainAxisAlignment: MainAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: <Widget>[
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
                     Text(
@@ -310,29 +296,83 @@ class _MyLocationPageState extends State<MyLocationPage> {
                       controller: _addressTextController,
                       placeholder: 'Search',
                       style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+                      onChanged: (String value) {
+                        getJSONData(value);
+                      },
+                      onSubmitted: (String value) {
+                        getJSONData(value);
+                      },
                     ),
                   ),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   // TODO: search results
-                  Center(
-                    child: data.length == 0
-                        ? const SizedBox(
-                            height: 25,
+                  Expanded(
+                    child: data.isEmpty
+                        ? const Text(
+                            "",
+                            style: TextStyle(fontSize: 20),
+                            textAlign: TextAlign.center,
                           )
                         : ListView.builder(
+                            shrinkWrap: true,
+                            // physics: const NeverScrollableScrollPhysics(),
+                            padding: const EdgeInsets.only(top: 0),
                             itemBuilder: (context, index) {
-                              return Card(
-                                child: Column(
-                                  children: [
-                                    Text(data[index]['place_name'].toString()),
-                                    Text(data[index]['road_address_name'].toString()),
-                                  ],
-                                ),
-                              );
+                              return InkWell(
+                                  onTap: () {
+                                    bottomState(() {
+                                      setState(() {
+                                        address = data[index]['address_name'].toString();
+                                        x = data[index]['x'].toString();
+                                        y = data[index]['y'].toString();
+                                      });
+                                    });
+                                    Navigator.pop(context, data[index]['address_name'].toString());
+                                  },
+                                  child: Container(
+                                      child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        data[index]['place_name'].toString(),
+                                        style: const TextStyle(color: Colors.white, fontFamily: 'NanumSquareNeo', fontSize: 20),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        data[index]['address_name'].toString(),
+                                        style: const TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 15),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      const Divider(
+                                        color: Colors.white54,
+                                        thickness: 0,
+                                        height: 0,
+                                      ),
+                                    ],
+                                  )));
                             },
                             itemCount: data.length,
+                            controller: _scrollController,
                           ),
                   ),
                 ]))));
+  }
+
+  Future<String?> getJSONData(String value) async {
+    var url = 'https://dapi.kakao.com/v2/local/search/keyword.json?target=place_name&query=$value}';
+    var response = await http.get(Uri.parse(url), headers: {"Authorization": "KakaoAK 37e042617856e851454e08c71556238d"});
+
+    setState(() {
+      data.clear();
+      var dataConvertedToJSON = json.decode(response.body);
+      List result = dataConvertedToJSON["documents"];
+      data.addAll(result);
+    });
+
+    return response.body;
   }
 
   FutureBuilder<List<LocationInfo>> _buildFutureBuilder() {
@@ -348,6 +388,7 @@ class _MyLocationPageState extends State<MyLocationPage> {
               children: snapshot.data!.map<Widget>((location) {
                 return InkWell(
                     onTap: () {
+                      // TODO: 내 장소 수정하기 기능 추가
                       //   showModalBottomSheet<void>(
                       // isScrollControlled: true,
                       //     backgroundColor:
@@ -708,9 +749,9 @@ class SearchTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoSearchTextField(
-      onChanged: (String value) {
-        fieldValue('The text has changed to: $value');
-      },
+      // onChanged: (String value) {
+      //   fieldValue('The text has changed to: $value');
+      // },
       onSubmitted: (String value) {
         fieldValue('Submitted text: $value');
       },
