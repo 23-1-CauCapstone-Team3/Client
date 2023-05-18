@@ -23,6 +23,8 @@ if (flutterVersionName == null) {
 
 def naverMapApiClientID = localProperties.getProperty('naver.map.CLIENT_ID')
 
+def kakaoNativeAppKey = localProperties.getProperty('kakao.native.app.key')
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
@@ -54,6 +56,7 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         manifestPlaceholders["naverMapApiClientID"] = naverMapApiClientID
+        manifestPlaceholders["kakaoNativeAppKey"] = kakaoNativeAppKey
     }
 
     buildTypes {
