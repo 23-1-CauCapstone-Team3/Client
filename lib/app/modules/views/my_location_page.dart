@@ -222,7 +222,6 @@ class _MyLocationPageState extends State<MyLocationPage> {
                               // TODO: 우측에 생기는 Padding 없애기
                               CupertinoButton(
                                   onPressed: () {
-                                    _addressTextController.clear();
                                     data.clear();
                                     result = '';
                                     showModalBottomSheet<void>(
@@ -389,242 +388,23 @@ class _MyLocationPageState extends State<MyLocationPage> {
                 return InkWell(
                     onTap: () {
                       // TODO: 내 장소 수정하기 기능 추가
-                      //   showModalBottomSheet<void>(
-                      // isScrollControlled: true,
-                      //     backgroundColor:
-                      //         CustomColors.sheetBackgroundColor,
-                      //     context: context,
-                      //     builder: (BuildContext context) {
-                      //       DateTime newDate =
-                      //           DateFormat('yyyy-MM-dd')
-                      //               .parse(alarm.alarmDate);
-                      //       String newDestination = alarm.location;
-                      //       return StatefulBuilder(
-                      //           builder:
-                      //               (BuildContext context,
-                      //                       setState) =>
-                      //                   SizedBox(
-                      // height:
-                      // MediaQuery.of(context).size.height * 0.92,
-                      //                     child: Align(
-                      //                       alignment:
-                      //                           Alignment(0.0, -0.9),
-                      //                       child: Column(
-                      //                         mainAxisAlignment:
-                      //                             MainAxisAlignment
-                      //                                 .start,
-                      //                         mainAxisSize:
-                      //                             MainAxisSize.min,
-                      //                         children: <Widget>[
-                      //                           Row(
-                      //                               mainAxisAlignment:
-                      //                                   MainAxisAlignment
-                      //                                       .spaceBetween,
-                      //                               children: <
-                      //                                   Widget>[
-                      //                                 TextButton(
-                      //                                   onPressed:
-                      //                                       () {
-                      //                                     Navigator.pop(
-                      //                                         context);
-                      //                                   },
-                      //                                   style: TextButton
-                      //                                       .styleFrom(
-                      //                                     minimumSize:
-                      //                                         Size.zero,
-                      //                                     padding:
-                      //                                         EdgeInsets
-                      //                                             .zero,
-                      //                                     tapTargetSize:
-                      //                                         MaterialTapTargetSize
-                      //                                             .shrinkWrap,
-                      //                                   ),
-                      //                                   child: Text(
-                      //                                     '  취소',
-                      //                                     style: TextStyle(
-                      //                                         fontFamily:
-                      //                                             'NanumSquareNeo',
-                      //                                         color: Colors.amber[
-                      //                                             800],
-                      //                                         fontSize:
-                      //                                             20),
-                      //                                   ),
-                      //                                 ),
-                      //                                 const Text(
-                      //                                   '막차 알림 편집',
-                      //                                   style: TextStyle(
-                      //                                       fontFamily:
-                      //                                           'NanumSquareNeo',
-                      //                                       color: Colors
-                      //                                           .white,
-                      //                                       fontSize:
-                      //                                           20),
-                      //                                 ),
-                      //                                 TextButton(
-                      //                                   onPressed:
-                      //                                       () {
-                      //                                     // TODO: insert new alarm
-                      //                                     if (newDate
-                      //                                             .difference(DateTime.now())
-                      //                                             .inSeconds >
-                      //                                         0) {
-                      //                                       updateAlarm(AlarmInfo(
-                      //                                           id: alarm
-                      //                                               .id,
-                      //                                           alarmDate: DateFormat('yyyy-MM-dd').format(
-                      //                                               newDate),
-                      //                                           location:
-                      //                                               newDestination));
-                      //                                     }
-                      //                                     setState(() =>
-                      //                                         loadAlarms());
-                      //                                     Navigator.pop(
-                      //                                         context);
-                      //                                   },
-                      //                                   style: TextButton
-                      //                                       .styleFrom(
-                      //                                     minimumSize:
-                      //                                         Size.zero,
-                      //                                     padding:
-                      //                                         EdgeInsets
-                      //                                             .zero,
-                      //                                     tapTargetSize:
-                      //                                         MaterialTapTargetSize
-                      //                                             .shrinkWrap,
-                      //                                   ),
-                      //                                   child: Text(
-                      //                                     '저장  ',
-                      //                                     style: TextStyle(
-                      //                                         fontFamily:
-                      //                                             'NanumSquareNeo',
-                      //                                         color: Colors.amber[
-                      //                                             800],
-                      //                                         fontSize:
-                      //                                             20),
-                      //                                   ),
-                      //                                 ),
-                      //                               ]),
-                      //                           const SizedBox(
-                      //                               height: 20),
-                      //                           Container(
-                      //                             height: 100,
-                      //                             width: 340,
-                      //                             decoration: BoxDecoration(
-                      //                                 color: CustomColors
-                      //                                     .tableBackgroundColor,
-                      //                                 borderRadius:
-                      //                                     const BorderRadius
-                      //                                             .all(
-                      //                                         Radius.circular(
-                      //                                             12))),
-                      //                             child: Center(
-                      //                               child: Column(
-                      //                                 mainAxisAlignment:
-                      //                                     MainAxisAlignment
-                      //                                         .center,
-                      //                                 children: <
-                      //                                     Widget>[
-                      //                                   _TodayAlarmItem0(
-                      //                                       children: <
-                      //                                           Widget>[
-                      //                                         const Text(
-                      //                                           '날짜',
-                      //                                           style: TextStyle(
-                      //                                               fontFamily: 'NanumSquareNeo',
-                      //                                               color: Colors.white,
-                      //                                               fontSize: 15),
-                      //                                         ),
-                      //                                         CupertinoButton(
-                      //                                           onPressed: () =>
-                      //                                               _showDialog(
-                      //                                             CupertinoDatePicker(
-                      //                                               initialDateTime: newDate,
-                      //                                               mode: CupertinoDatePickerMode.date,
-                      //                                               use24hFormat: true,
-                      //                                               // This is called when the user changes the date.
-                      //                                               onDateTimeChanged: (DateTime date) {
-                      //                                                 setState(() => newDate = date);
-                      //                                               },
-                      //                                             ),
-                      //                                           ),
-                      //                                           // In this example, the date is formatted manually. You can
-                      //                                           // use the intl package to format the value based on the
-                      //                                           // user's locale settings.
-                      //                                           child:
-                      //                                               Text(
-                      //                                             DateFormat('yyyy.MM.dd (EE) >', 'ko').format(newDate),
-                      //                                             style: const TextStyle(
-                      //                                                 fontFamily: 'NanumSquareNeo',
-                      //                                                 color: Colors.white54,
-                      //                                                 fontSize: 15),
-                      //                                           ),
-                      //                                         ),
-                      //                                       ]),
-                      //                                   _TodayAlarmItem1(
-                      //                                       children: <
-                      //                                           Widget>[
-                      //                                         const Text(
-                      //                                           '목적지',
-                      //                                           style: TextStyle(
-                      //                                               fontFamily: 'NanumSquareNeo',
-                      //                                               color: Colors.white,
-                      //                                               fontSize: 15),
-                      //                                         ),
-                      //                                         CupertinoButton(
-                      //                                             onPressed:
-                      //                                                 () {},
-                      //                                             // TODO
-                      //                                             child:
-                      //                                                 Text(
-                      //                                               '$newDestination >',
-                      //                                               // TODO - 목적지 변수
-                      //                                               style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
-                      //                                             )),
-                      //                                       ]),
-                      //                                 ],
-                      //                               ),
-                      //                             ),
-                      //                           ),
-                      //                           const SizedBox(
-                      //                               height: 20),
-                      //                           Container(
-                      //                             height: 50,
-                      //                             width: 340,
-                      //                             decoration: BoxDecoration(
-                      //                                 color: CustomColors
-                      //                                     .tableBackgroundColor,
-                      //                                 borderRadius:
-                      //                                     const BorderRadius
-                      //                                             .all(
-                      //                                         Radius.circular(
-                      //                                             12))),
-                      //                             child: TextButton(
-                      //                               onPressed: () {
-                      //                                 deleteAlarm(
-                      //                                     alarm);
-                      //                                 setState(() =>
-                      //                                     loadAlarms());
-                      //                                 Navigator.pop(
-                      //                                     context);
-                      //                               },
-                      //                               child: const Text(
-                      //                                 '알림 삭제',
-                      //                                 style: TextStyle(
-                      //                                     fontFamily:
-                      //                                         'NanumSquareNeo',
-                      //                                     color: Colors
-                      //                                         .red,
-                      //                                     fontSize:
-                      //                                         15),
-                      //                               ),
-                      //                             ),
-                      //                           ),
-                      //                         ],
-                      //                       ),
-                      //                     ),
-                      //                   ));
-                      //     },
-                      //   );
+                      String oldLabel = location.location;
+                      String oldAddress = location.address;
+                      int? id = location.id;
+                      _textController.text = oldLabel;
+                      address = oldAddress;
+                      showModalBottomSheet<void>(
+                        isScrollControlled: true,
+                        backgroundColor: CustomColors.sheetBackgroundColor,
+                        context: context,
+                        builder: (BuildContext context) {
+                          return _modifyLocation(id!, oldLabel, oldAddress);
+                        },
+                      ).then((value) {
+                        setState(() {});
+                        _textController.clear();
+                        address = '';
+                      });
                     },
                     child: Column(children: <Widget>[
                       SizedBox(height: 16),
@@ -681,6 +461,123 @@ class _MyLocationPageState extends State<MyLocationPage> {
         );
       },
     );
+  }
+
+  StatefulBuilder _modifyLocation(int id, String oldLabel, String oldAddress) {
+    return StatefulBuilder(
+        builder: (BuildContext context, StateSetter bottomState) => SizedBox(
+              height: MediaQuery.of(context).size.height * 0.92,
+              child: Align(
+                alignment: const Alignment(0.0, -0.9),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        style: TextButton.styleFrom(
+                          minimumSize: Size.zero,
+                          padding: EdgeInsets.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          '  취소',
+                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.amber[800], fontSize: 20),
+                        ),
+                      ),
+                      const Text(
+                        '내 장소 수정',
+                        style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          updateLocation(LocationInfo(id: id, location: _textController.text, address: address));
+                          bottomState(() {
+                            setState(() => loadLocations());
+                          });
+                          Navigator.pop(context);
+                        },
+                        style: TextButton.styleFrom(
+                          minimumSize: Size.zero,
+                          padding: EdgeInsets.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          '저장  ',
+                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.amber[800], fontSize: 20),
+                        ),
+                      ),
+                    ]),
+                    const SizedBox(height: 20),
+                    Container(
+                      height: 100,
+                      width: 340,
+                      decoration: BoxDecoration(color: CustomColors.tableBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(12))),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            _LocationItem0(children: <Widget>[
+                              const Text(
+                                '레이블',
+                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+                              ),
+                              SizedBox(
+                                width: 200,
+                                child: TextField(
+                                  textAlign: TextAlign.right,
+                                  cursorColor: CustomColors.tableBackgroundColor,
+                                  controller: _textController,
+                                  decoration: const InputDecoration(
+                                    hintText: '장소 이름',
+                                    hintStyle: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
+                                    border: InputBorder.none,
+                                  ),
+                                  style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+                                ),
+                              )
+                            ]),
+                            _LocationItem1(children: <Widget>[
+                              const Text(
+                                '주소',
+                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+                              ),
+                              // TODO: 우측에 생기는 Padding 없애기
+                              CupertinoButton(
+                                  onPressed: () {
+                                    _addressTextController.clear();
+                                    data.clear();
+                                    result = '';
+                                    showModalBottomSheet<void>(
+                                      isScrollControlled: true,
+                                      backgroundColor: CustomColors.sheetBackgroundColor,
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return _searchLocation();
+                                      },
+                                    ).then((value) {
+                                      bottomState(() {
+                                        setState(() {});
+                                      });
+                                    });
+                                  }, // TODO
+                                  child: Text(
+                                    address,
+                                    // TODO - 주소 변수
+                                    style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
+                                  )),
+                            ]),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ));
   }
 }
 
