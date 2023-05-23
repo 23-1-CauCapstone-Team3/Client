@@ -17,7 +17,7 @@ class AlarmPage extends StatefulWidget {
   _AlarmPageState createState() => _AlarmPageState();
 }
 
-class _AlarmPageState extends State<AlarmPage> {
+class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixin {
   String destination = '집'; //TODO: defaultLocation
   bool todayAlarm = false;
   bool todayWakeUpCheck = false;
@@ -141,6 +141,9 @@ class _AlarmPageState extends State<AlarmPage> {
   }
 
   /// [E] 새로운 알람 생성 관련 변수 및 method
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {

@@ -14,13 +14,19 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _selectedIndex = 1;
 
-  static List<Widget> pages = <Widget>[CurrentRoutePage(), AlarmPage(), MyLocationPage()];
+  final List<Widget> pages = <Widget>[CurrentRoutePage(), AlarmPage(), MyLocationPage()];
 
   void _onItemTapped(int index) {
+    pageController.jumpToPage(index);
+  }
+
+  void _onPageChanged(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
+
+  final pageController = PageController();
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +39,14 @@ class _HomeState extends State<Home> {
 
     return Scaffold(
       backgroundColor: CustomColors.pageBackgroundColor,
-      body: pages[_selectedIndex],
+      body: PageView(
+        controller: pageController,
+        onPageChanged: _onPageChanged,
+        children: pages,
+        physics: NeverScrollableScrollPhysics(),
+      ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         backgroundColor: CustomColors.menuBackgroundColor,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
