@@ -30,7 +30,9 @@ class LocationInfoProvider {
             CREATE TABLE locationInfo(
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               location TEXT NOT NULL UNIQUE,
-              address TEXT NOT NULL UNIQUE
+              address TEXT NOT NULL UNIQUE,
+              x TEXT NOT NULL,
+              y TEXT NOT NULL
             )
           ''');
     }, onUpgrade: (db, oldVersion, newVersion) {});
@@ -45,6 +47,8 @@ class LocationInfoProvider {
         id: maps[index]["id"],
         location: maps[index]["location"],
         address: maps[index]["address"],
+        x: maps[index]["x"],
+        y: maps[index]["y"],
       );
     });
     return list;
@@ -82,6 +86,15 @@ class LocationInfoProvider {
       TABLENAME,
       where: "id = ?",
       whereArgs: [locationInfo.id],
+    );
+  }
+
+  Future<void> deleteWithID(int id) async {
+    final db = await database;
+    await db?.delete(
+      TABLENAME,
+      where: "id = ?",
+      whereArgs: [id],
     );
   }
 }

@@ -26,16 +26,16 @@ class _MyLocationPageState extends State<MyLocationPage> {
     if (mounted) setState(() {});
   }
 
-  void insertLocation(String location, String address) {
-    _locationInfoProvider.insert(LocationInfo(location: location, address: address));
+  void insertLocation(String location, String address, String x, String y) {
+    _locationInfoProvider.insert(LocationInfo(location: location, address: address, x: x, y: y));
   }
 
   void updateLocation(LocationInfo locationInfo) {
     _locationInfoProvider.update(locationInfo);
   }
 
-  void deleteLocation(LocationInfo locationInfo) {
-    _locationInfoProvider.delete(locationInfo);
+  void deleteLocation(int id) {
+    _locationInfoProvider.deleteWithID(id);
   }
 
   /// [E] DB
@@ -43,7 +43,7 @@ class _MyLocationPageState extends State<MyLocationPage> {
   late TextEditingController _textController;
   late TextEditingController _addressTextController;
 
-  late String result;
+  // late String result;
   late List data;
   late String address;
   late String x;
@@ -54,7 +54,7 @@ class _MyLocationPageState extends State<MyLocationPage> {
     super.initState();
     _textController = TextEditingController(text: '');
     _addressTextController = TextEditingController(text: '');
-    result = '';
+    // result = '';
     data = [];
     address = '';
     x = '';
@@ -89,6 +89,8 @@ class _MyLocationPageState extends State<MyLocationPage> {
                 onPressed: () {
                   _textController.clear();
                   address = '';
+                  x = '';
+                  y = '';
                   //TODO: insert new Location
                   showModalBottomSheet<void>(
                     isScrollControlled: true,
@@ -168,7 +170,7 @@ class _MyLocationPageState extends State<MyLocationPage> {
                       TextButton(
                         onPressed: () {
                           // TODO: insert new location
-                          insertLocation(_textController.text, address);
+                          insertLocation(_textController.text, address, x, y);
                           bottomState(() {
                             setState(() => loadLocations());
                           });
@@ -187,7 +189,8 @@ class _MyLocationPageState extends State<MyLocationPage> {
                     ]),
                     const SizedBox(height: 20),
                     Container(
-                      height: 100,
+                      // height: 100,
+                      height: 200,
                       width: 340,
                       decoration: BoxDecoration(color: CustomColors.tableBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(12))),
                       child: Center(
@@ -222,8 +225,9 @@ class _MyLocationPageState extends State<MyLocationPage> {
                               // TODO: 우측에 생기는 Padding 없애기
                               CupertinoButton(
                                   onPressed: () {
+                                    _addressTextController.clear();
                                     data.clear();
-                                    result = '';
+                                    // result = '';
                                     showModalBottomSheet<void>(
                                       isScrollControlled: true,
                                       backgroundColor: CustomColors.sheetBackgroundColor,
@@ -239,6 +243,34 @@ class _MyLocationPageState extends State<MyLocationPage> {
                                   }, // TODO
                                   child: Text(
                                     address,
+                                    // TODO - 주소 변수
+                                    style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
+                                  )),
+                            ]),
+                            _LocationItem1(children: <Widget>[
+                              const Text(
+                                'x',
+                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+                              ),
+                              // TODO: 우측에 생기는 Padding 없애기
+                              SizedBox(
+                                  width: 200,
+                                  child: Text(
+                                    x,
+                                    // TODO - 주소 변수
+                                    style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
+                                  )),
+                            ]),
+                            _LocationItem1(children: <Widget>[
+                              const Text(
+                                'y',
+                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+                              ),
+                              // TODO: 우측에 생기는 Padding 없애기
+                              SizedBox(
+                                  width: 200,
+                                  child: Text(
+                                    y,
                                     // TODO - 주소 변수
                                     style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
                                   )),
@@ -345,6 +377,16 @@ class _MyLocationPageState extends State<MyLocationPage> {
                                         style: const TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 15),
                                       ),
                                       const SizedBox(height: 8),
+                                      Text(
+                                        data[index]['x'].toString(),
+                                        style: const TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 15),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        data[index]['y'].toString(),
+                                        style: const TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 15),
+                                      ),
+                                      const SizedBox(height: 8),
                                       const Divider(
                                         color: Colors.white54,
                                         thickness: 0,
@@ -390,20 +432,26 @@ class _MyLocationPageState extends State<MyLocationPage> {
                       // TODO: 내 장소 수정하기 기능 추가
                       String oldLabel = location.location;
                       String oldAddress = location.address;
+                      String oldX = location.x;
+                      String oldY = location.y;
                       int? id = location.id;
                       _textController.text = oldLabel;
                       address = oldAddress;
+                      x = oldX;
+                      y = oldY;
                       showModalBottomSheet<void>(
                         isScrollControlled: true,
                         backgroundColor: CustomColors.sheetBackgroundColor,
                         context: context,
                         builder: (BuildContext context) {
-                          return _modifyLocation(id!, oldLabel, oldAddress);
+                          return _modifyLocation(id!, oldLabel, oldAddress, oldX, oldY);
                         },
                       ).then((value) {
                         setState(() {});
                         _textController.clear();
                         address = '';
+                        x = '';
+                        y = '';
                       });
                     },
                     child: Column(children: <Widget>[
@@ -463,7 +511,7 @@ class _MyLocationPageState extends State<MyLocationPage> {
     );
   }
 
-  StatefulBuilder _modifyLocation(int id, String oldLabel, String oldAddress) {
+  StatefulBuilder _modifyLocation(int id, String oldLabel, String oldAddress, String oldX, String oldY) {
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter bottomState) => SizedBox(
               height: MediaQuery.of(context).size.height * 0.92,
@@ -494,7 +542,7 @@ class _MyLocationPageState extends State<MyLocationPage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          updateLocation(LocationInfo(id: id, location: _textController.text, address: address));
+                          updateLocation(LocationInfo(id: id, location: _textController.text, address: address, x: x, y: y));
                           bottomState(() {
                             setState(() => loadLocations());
                           });
@@ -513,7 +561,8 @@ class _MyLocationPageState extends State<MyLocationPage> {
                     ]),
                     const SizedBox(height: 20),
                     Container(
-                      height: 100,
+                      // height: 100,
+                      height: 200,
                       width: 340,
                       decoration: BoxDecoration(color: CustomColors.tableBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(12))),
                       child: Center(
@@ -550,7 +599,8 @@ class _MyLocationPageState extends State<MyLocationPage> {
                                   onPressed: () {
                                     _addressTextController.clear();
                                     data.clear();
-                                    result = '';
+                                    address = '';
+                                    // result = '';
                                     showModalBottomSheet<void>(
                                       isScrollControlled: true,
                                       backgroundColor: CustomColors.sheetBackgroundColor,
@@ -570,7 +620,52 @@ class _MyLocationPageState extends State<MyLocationPage> {
                                     style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
                                   )),
                             ]),
+                            _LocationItem1(children: <Widget>[
+                              const Text(
+                                'x',
+                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+                              ),
+                              // TODO: 우측에 생기는 Padding 없애기
+                              SizedBox(
+                                  width: 200,
+                                  child: Text(
+                                    x,
+                                    // TODO - 주소 변수
+                                    style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
+                                  )),
+                            ]),
+                            _LocationItem1(children: <Widget>[
+                              const Text(
+                                'y',
+                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
+                              ),
+                              // TODO: 우측에 생기는 Padding 없애기
+                              SizedBox(
+                                  width: 200,
+                                  child: Text(
+                                    y,
+                                    // TODO - 주소 변수
+                                    style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
+                                  )),
+                            ]),
                           ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
+                      height: 50,
+                      width: 340,
+                      decoration: BoxDecoration(color: CustomColors.tableBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(12))),
+                      child: TextButton(
+                        onPressed: () {
+                          deleteLocation(id);
+                          setState(() => loadLocations());
+                          Navigator.pop(context);
+                        },
+                        child: const Text(
+                          '알림 삭제',
+                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.red, fontSize: 15),
                         ),
                       ),
                     ),
