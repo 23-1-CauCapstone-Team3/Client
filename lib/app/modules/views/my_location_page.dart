@@ -404,7 +404,8 @@ class _MyLocationPageState extends State<MyLocationPage> {
   }
 
   Future<String?> getJSONData(String value) async {
-    var url = 'https://dapi.kakao.com/v2/local/search/keyword.json?target=place_name&query=$value}';
+
+    var url = 'https://dapi.kakao.com/v2/local/search/keyword.json?target=place_name&query=$value';
     var response = await http.get(Uri.parse(url), headers: {"Authorization": "KakaoAK 37e042617856e851454e08c71556238d"});
 
     setState(() {
