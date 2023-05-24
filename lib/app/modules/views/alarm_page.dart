@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:last_transport/app/data/theme_data.dart';
 
@@ -18,10 +20,27 @@ class AlarmPage extends StatefulWidget {
 }
 
 class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixin {
-  String destination = '집'; //TODO: defaultLocation
-  bool todayAlarm = false;
-  bool todayWakeUpCheck = false;
-  bool todayWakeUpHelp = false;
+
+  /// [S] Location DB
+  final LocationInfoProvider _locationInfoProvider = LocationInfoProvider();
+  Future<List<LocationInfo>>? _locations;
+  List<LocationInfo>? _currentLocations;
+
+  void loadLocations() {
+    _locations = _locationInfoProvider.getDB();
+    if (mounted) setState(() {});
+  }
+
+  /// [E] Location DB
+
+  late String destination; //TODO: defaultLocation
+  late String x;
+  late String y;
+  Future<LocationInfo>? defaultLocation;
+
+  late bool todayAlarm;
+  late bool todayWakeUpCheck;
+  late bool todayWakeUpHelp;
 
   /// [S] alarmInfo DB 관련 변수 및 method
   final AlarmInfoProvider _alarmInfoProvider = AlarmInfoProvider();
@@ -36,7 +55,20 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
       if (data.alarmDate != "") {
         todayAlarm = true;
         destination = data.location;
+        x = data.x;
+        y = data.y;
         // TODO: server에서 departureTime 가져오기?
+      }else{
+        todayAlarm = false;
+        defaultLocation = _locationInfoProvider.getDefaultLocation();
+        if (mounted) setState(() {});
+        defaultLocation?.then((data) {
+          if (data.id == 1) {
+            destination = data.location;
+            x = data.x;
+            y = data.y;
+          }
+        });
       }
     });
   }
@@ -49,8 +81,8 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
     });
   }
 
-  void insertAlarm(DateTime alarmDate, String location) {
-    _alarmInfoProvider.insert(AlarmInfo(alarmDate: DateFormat('yyyy-MM-dd').format(alarmDate), location: location));
+  void insertAlarm(DateTime alarmDate, String location, String x, String y) {
+    _alarmInfoProvider.insert(AlarmInfo(alarmDate: DateFormat('yyyy-MM-dd').format(alarmDate), location: location, x: x, y: y));
   }
 
   void updateAlarm(AlarmInfo alarmInfo) {
@@ -66,18 +98,6 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   }
 
   /// [E] alarmInfo DB 관련 변수 및 method
-
-  /// [S] Location DB
-  final LocationInfoProvider _locationInfoProvider = LocationInfoProvider();
-  Future<List<LocationInfo>>? _locations;
-  List<LocationInfo>? _currentLocations;
-
-  void loadLocations() {
-    _locations = _locationInfoProvider.getDB();
-    if (mounted) setState(() {});
-  }
-
-  /// [E] Location DB
 
   /// [S] 출발 시간 타이머 관련 변수 및 method
   DateTime departureTime = DateTime.now().add(Duration(seconds: 10)); // DateTime.parse('2023-05-19 04:01:59'); //TODO: get from server
@@ -146,13 +166,15 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   bool get wantKeepAlive => true;
 
   @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+  void initState() {
+    super.initState();
+    destination = '';
+    x = '';
+    y = '';
+
+    todayAlarm = false;
+    todayWakeUpCheck = false;
+    todayWakeUpHelp = false;
 
     /// [S] 오늘 막차 알림 정보 가져오기
     loadTodayAlarm();
@@ -161,11 +183,6 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
       _startTimer();
     }
 
-    String strDigits(int n) => n.toString().padLeft(2, '0');
-    final hours = strDigits(duration.inHours.remainder(24));
-    final minutes = strDigits(duration.inMinutes.remainder(60));
-    final seconds = strDigits(duration.inSeconds.remainder(60));
-
     /// [E] 오늘 막차 알림 정보 가져오기
 
     /// 전체 알람 정보 가져오기
@@ -173,6 +190,21 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
 
     /// 전체 장소 정보 가져오기
     loadLocations();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // This method is rerun every time setState is called, for instance as done
+    // by the _incrementCounter method above.
+    //
+    // The Flutter framework has been optimized to make rerunning build methods
+    // fast, so that you can just rebuild anything that needs updating rather
+    // than having to individually change instances of widgets.
+
+    String strDigits(int n) => n.toString().padLeft(2, '0');
+    final hours = strDigits(duration.inHours.remainder(24));
+    final minutes = strDigits(duration.inMinutes.remainder(60));
+    final seconds = strDigits(duration.inSeconds.remainder(60));
 
     return Scaffold(
       backgroundColor: CustomColors.pageBackgroundColor,
@@ -256,8 +288,10 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                       context: context,
                       builder: (BuildContext context) {
                         DateTime newDate = DateTime.now().add(Duration(days: 1));
-                        String newDestination = '집'; // TODO
-                        return _addFutureAlarm(newDate, newDestination);
+                        String newDestination = destination; // TODO
+                        String newX = x;
+                        String newY = y;
+                        return _addFutureAlarm(newDate, newDestination, newX, newY);
                       },
                     );
                   },
@@ -319,7 +353,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                       TextButton(
                         onPressed: () {
                           if (newDate.difference(DateTime.now()).inSeconds > 0) {
-                            insertAlarm(newDate, newDestination);
+                            insertAlarm(newDate, newDestination, newX, newY);
                           }
                           setState(() => loadAlarms());
                           Navigator.pop(context);
@@ -516,6 +550,8 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                         builder: (BuildContext context) {
                           DateTime newDate = DateFormat('yyyy-MM-dd').parse(alarm.alarmDate);
                           String newDestination = alarm.location;
+                          String newX = alarm.x;
+                          String newY = alarm.y;
                           return StatefulBuilder(
                               builder: (BuildContext context, setState) => SizedBox(
                                     height: MediaQuery.of(context).size.height * 0.92,
@@ -547,7 +583,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                                             TextButton(
                                               onPressed: () {
                                                 if (newDate.difference(DateTime.now()).inSeconds > 0) {
-                                                  updateAlarm(AlarmInfo(id: alarm.id, alarmDate: DateFormat('yyyy-MM-dd').format(newDate), location: newDestination));
+                                                  updateAlarm(AlarmInfo(id: alarm.id, alarmDate: DateFormat('yyyy-MM-dd').format(newDate), location: newDestination, x: newX, y: newY));
                                                 }
                                                 setState(() => loadAlarms());
                                                 Navigator.pop(context);

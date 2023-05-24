@@ -6,10 +6,9 @@ import 'models/alarm_info.dart';
 final String TABLENAME = 'alarmInfo';
 
 class AlarmInfoProvider {
-  static final AlarmInfoProvider _alarmInfoProvider = AlarmInfoProvider
-      ._internal();
+  static final AlarmInfoProvider _alarmInfoProvider = AlarmInfoProvider._internal();
 
-  AlarmInfoProvider._internal(){
+  AlarmInfoProvider._internal() {
     // init values...
 
     /*
@@ -28,20 +27,17 @@ class AlarmInfoProvider {
 
   initDB() async {
     String path = join(await getDatabasesPath(), 'alarmInfo.db');
-    return await openDatabase(
-        path,
-        version: 1,
-        onCreate: (db, version) async {
-          await db.execute('''
+    return await openDatabase(path, version: 1, onCreate: (db, version) async {
+      await db.execute('''
             CREATE TABLE alarmInfo(
               id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
               alarmDate TEXT NOT NULL UNIQUE,
-              location TEXT NOT NULL
+              location TEXT NOT NULL,
+              x TEXT NOT NULL,
+              y TEXT NOT NULL
             )
           ''');
-        },
-        onUpgrade: (db, oldVersion, newVersion) {}
-    );
+    }, onUpgrade: (db, oldVersion, newVersion) {});
   }
 
   Future<List<AlarmInfo>> getDB() async {
@@ -53,6 +49,8 @@ class AlarmInfoProvider {
         id: maps[index]["id"],
         alarmDate: maps[index]["alarmDate"],
         location: maps[index]["location"],
+        x: maps[index]["x"],
+        y: maps[index]["y"],
       );
     });
     return list;
@@ -61,15 +59,17 @@ class AlarmInfoProvider {
   Future<AlarmInfo> getTodayAlarm(String today) async {
     final db = await database;
     final List<Map<String, dynamic>> map = await db!.query(
-        TABLENAME,
-        where: "alarmDate = ?",
-        whereArgs: [today],
+      TABLENAME,
+      where: "alarmDate = ?",
+      whereArgs: [today],
     );
-    if (map.isEmpty) return AlarmInfo(alarmDate: "", location: "");
+    if (map.isEmpty) return AlarmInfo(alarmDate: "", location: "", x: "", y: "");
     return AlarmInfo(
       id: map[0]["id"],
       alarmDate: map[0]["alarmDate"],
       location: map[0]["location"],
+      x: map[0]["x"],
+      y: map[0]["y"],
     );
   }
 
