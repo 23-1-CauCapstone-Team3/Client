@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:last_transport/app/data/theme_data.dart';
 
@@ -321,7 +320,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
     );
   }
 
-  StatefulBuilder _addFutureAlarm(DateTime newDate, String newDestination) {
+  StatefulBuilder _addFutureAlarm(DateTime newDate, String newDestination, String newX, String newY) {
     return StatefulBuilder(
         builder: (BuildContext context, setState) => SizedBox(
               height: MediaQuery.of(context).size.height * 0.92,
