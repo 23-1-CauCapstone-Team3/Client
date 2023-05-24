@@ -37,20 +37,20 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
 
   /// [E] Location DB
 
-  late String destination; // TODO: SharedPreferences
-  late String x; // TODO: SharedPreferences
-  late String y; // TODO: SharedPreferences
+  late String destination; // Hive
+  late String x; // Hive
+  late String y; // Hive
   Future<LocationInfo>? defaultLocation;
 
-  late bool todayAlarm; // TODO: SharedPreferences not work
-  late bool todayWakeUpCheck; // TODO: SharedPreferences
-  late bool todayWakeUpHelp; // TODO: SharedPreferences
+  late bool todayAlarm; // Hive
+  late bool todayWakeUpCheck; // Hive
+  late bool todayWakeUpHelp; // Hive
 
   /// [S] 출발 시간 타이머 관련 변수 및 method
-  late DateTime departureTime; // DateTime.parse('2023-05-19 04:01:59'); //TODO: get from server  // TODO: SharedPreferences
+  late DateTime departureTime; // Hive
+  late Duration duration;
   Timer? _timer;
-  late bool _flagTimer;
-  Duration duration = const Duration(seconds: 1);
+  late bool _flagTimer;   // Hive
 
   void _startTimer() {
     duration = departureTime.difference(DateTime.now());
@@ -79,7 +79,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
         _timer!.cancel();
         deleteDateAlarm(departureTime);
         // todayAlarm = false;
-        // _setTodayAlarmData(todayAlarm);
+        // exBox.put('todayAlarm', todayAlarm);
       } else {
         duration = Duration(seconds: seconds);
 
@@ -105,43 +105,36 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   List<AlarmInfo>? _currentAlarms;
   Future<AlarmInfo>? _todayAlarm;
 
-  void _setTodayAlarmData(bool value) async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    pref.setBool('todayAlarm', value);
-  }
-
-  void _loadTodayAlarmData() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    setState(() {
-      var value = pref.getBool('todayAlarm');
-      todayAlarm = value ?? false;
-    });
-  }
-
   void loadTodayAlarm() {
     _todayAlarm = _alarmInfoProvider.getTodayAlarm(DateFormat('yyyy-MM-dd').format(DateTime.now()));
-    if (mounted) setState(() {});
+    defaultLocation = _locationInfoProvider.getDefaultLocation();
+    if (mounted) {
+      setState(() {
+      defaultLocation?.then((data) {
+        if (data.id == 1) {
+          destination = data.location;
+          x = data.x;
+          y = data.y;
+          exBox.put('destination', destination);
+          exBox.put('x', x);
+          exBox.put('y', y);
+        }
+      });});
+    }
     _todayAlarm?.then((data) {
       if (data.alarmDate != "") {
         todayAlarm = true;
-        _setTodayAlarmData(todayAlarm);
+        exBox.put('todayAlarm', todayAlarm);
         destination = data.location;
         x = data.x;
         y = data.y;
-        // TODO: server에서 departureTime 가져오기?
-        getJSONData();
+        exBox.put('destination', destination);
+        exBox.put('x', x);
+        exBox.put('y', y);
+        getJSONData();  // 서버에서 값 가져오기
       }else{
         todayAlarm = false;
-        _setTodayAlarmData(todayAlarm);
-        defaultLocation = _locationInfoProvider.getDefaultLocation();
-        if (mounted) setState(() {});
-        defaultLocation?.then((data) {
-          if (data.id == 1) {
-            destination = data.location;
-            x = data.x;
-            y = data.y;
-          }
-        });
+        exBox.put('todayAlarm', todayAlarm);
       }
     });
   }
@@ -200,7 +193,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   /// [S] route
   var exBox = Hive.box('box_name');
 
-  late List route;  // TODO: SharedPreferences
+  late List route;  // Hive
 
   void _setRouteData(int value) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -215,21 +208,22 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   @override
   void initState() {
     super.initState();
-    destination = '';
-    x = '';
-    y = '';
 
-    todayAlarm = false;
-    _loadTodayAlarmData();
+    destination = exBox.get('destination', defaultValue: '');
+    x = exBox.get('x', defaultValue: '');
+    y = exBox.get('y', defaultValue: '');
 
-    todayWakeUpCheck = false;
-    todayWakeUpHelp = false;
+    todayAlarm = exBox.get('todayAlarm', defaultValue: false);
+
+    todayWakeUpCheck = exBox.get('todayWakeUpCheck', defaultValue: false);
+    todayWakeUpHelp = exBox.get('todayWakeUpCheck', defaultValue: false);
 
     _flagTimer = false;
 
     // route = [];
     route = exBox.get('route', defaultValue: []);
     departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(const Duration(minutes: 1)));
+    duration = departureTime.difference(DateTime.now());
 
     /// [S] 오늘 막차 알림 정보 가져오기
 
@@ -915,23 +909,21 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                   // This is called when the user toggles the switch.
                   setState(() {
                     todayAlarm = value ?? false;
-                    _setTodayAlarmData(todayAlarm);
+                    exBox.put('todayAlarm', todayAlarm);
                   });
                   if (todayAlarm) {
-                    route = exBox.get('route', defaultValue: []);
-                    departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(minutes: 2)));
-                    if (route.isEmpty){
+                    // route = exBox.get('route', defaultValue: []);
+                    // departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(minutes: 2)));
+                    // if (route.isEmpty){
                       getJSONData().then((value) {
                         route = exBox.get('route', defaultValue: []);
                         departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(minutes: 3)));
-                        sleep(const Duration(milliseconds: 500));
                         _startTimer();
                       });
-                    }else{
-                      sleep(const Duration(milliseconds: 500));
-                      _startTimer();
-                      // print(route);
-                    }
+                    // }else{
+                    //   _startTimer();
+                    //   // print(route);
+                    // }
                   } else {
                     _stopTimer();
                   }
@@ -952,6 +944,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                   setState(() {
                     if (todayWakeUpCheck || todayAlarm) {
                       todayWakeUpCheck = value ?? false;
+                      exBox.put('todayWakeUpCheck', todayWakeUpCheck);
                       //TODO: if (todayWakeUpCheck) {기상 체크 기능 켜기}
                     }
                   });
@@ -972,6 +965,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                   setState(() {
                     if (todayWakeUpHelp || todayAlarm) {
                       todayWakeUpHelp = value ?? false;
+                      exBox.put('todayWakeUpHelp', todayWakeUpHelp);
                       //TODO: if (todayWakeUpHelp) {기상 도움 요청 기능 켜기}
                     }
                   });
@@ -1019,7 +1013,9 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                                         destination = location.location;
                                         x = location.x;
                                         y = location.y;
-                                        // TODO: 도로명 주소 혹은 좌표 추가
+                                        exBox.put('destination', destination);
+                                        exBox.put('x', x);
+                                        exBox.put('y', y);
                                       });
                                     });
                                     Navigator.pop(context);
@@ -1093,6 +1089,8 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
     Future<Position?> position = getLocation();
     if (mounted) setState(() {});
     position?.then((data) async {
+
+      // TODO: Get data from server!
       // var url = 'http://도메인주소/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
       // var response = await http.get(Uri.parse(url), headers: {"Authorization": ""});
 
