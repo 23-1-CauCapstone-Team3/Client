@@ -59,11 +59,12 @@ class _MyLocationPageState extends State<MyLocationPage> {
     address = '';
     x = '';
     y = '';
+
+    loadLocations();
   }
 
   @override
   Widget build(BuildContext context) {
-    loadLocations();
 
     return Scaffold(
       backgroundColor: CustomColors.pageBackgroundColor,
