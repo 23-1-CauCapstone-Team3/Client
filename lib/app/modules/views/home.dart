@@ -14,7 +14,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _selectedIndex = 1;
 
-  final List<Widget> pages = <Widget>[CurrentRoutePage(), AlarmPage(), MyLocationPage()];
+  final List<Widget> pages = <Widget>[const CurrentRoutePage(), const AlarmPage(), const MyLocationPage()];
 
   void _onItemTapped(int index) {
     pageController.jumpToPage(index);
@@ -26,7 +26,7 @@ class _HomeState extends State<Home> {
     });
   }
 
-  final pageController = PageController();
+  final pageController = PageController(initialPage: 1);
 
   @override
   Widget build(BuildContext context) {
@@ -42,8 +42,8 @@ class _HomeState extends State<Home> {
       body: PageView(
         controller: pageController,
         onPageChanged: _onPageChanged,
+        physics: const NeverScrollableScrollPhysics(),
         children: pages,
-        physics: NeverScrollableScrollPhysics(),
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
