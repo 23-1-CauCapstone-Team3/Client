@@ -1,10 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:last_transport/app/data/theme_data.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/alarmInfoDB.dart';
 import '../../data/locationInfoDB.dart';
@@ -32,14 +37,67 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
 
   /// [E] Location DB
 
-  late String destination; //TODO: defaultLocation
-  late String x;
-  late String y;
+  late String destination; // TODO: SharedPreferences
+  late String x; // TODO: SharedPreferences
+  late String y; // TODO: SharedPreferences
   Future<LocationInfo>? defaultLocation;
 
-  late bool todayAlarm;
-  late bool todayWakeUpCheck;
-  late bool todayWakeUpHelp;
+  late bool todayAlarm; // TODO: SharedPreferences not work
+  late bool todayWakeUpCheck; // TODO: SharedPreferences
+  late bool todayWakeUpHelp; // TODO: SharedPreferences
+
+  /// [S] 출발 시간 타이머 관련 변수 및 method
+  late DateTime departureTime; // DateTime.parse('2023-05-19 04:01:59'); //TODO: get from server  // TODO: SharedPreferences
+  Timer? _timer;
+  late bool _flagTimer;
+  Duration duration = const Duration(seconds: 1);
+
+  void _startTimer() {
+    duration = departureTime.difference(DateTime.now());
+
+    if (_flagTimer == false) {
+      setState(() => _flagTimer = true);
+      _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+        _setCountDown();
+      });
+    }
+  }
+
+  void _stopTimer() {
+    setState(() {
+      _timer!.cancel();
+      _flagTimer = false;  //TODO: 어떻게 timer를 잘 취소시킬 수 있을까...
+    });
+  }
+
+  void _setCountDown() {
+    const reduceSecondsBy = 1;
+    setState(() {
+      final seconds = duration.inSeconds - reduceSecondsBy;
+      if (seconds - 1 < 0) {
+        duration = const Duration(seconds: 0);
+        _timer!.cancel();
+        deleteDateAlarm(departureTime);
+        // todayAlarm = false;
+        // _setTodayAlarmData(todayAlarm);
+      } else {
+        duration = Duration(seconds: seconds);
+
+        if (seconds == 3600){
+          getJSONData();
+        }
+        else if (DateFormat('HH:mm:ss').format(DateTime.now()) == '18:00:00'){
+          getJSONData();
+        }
+        else if (DateFormat('HH:mm:ss').format(DateTime.now()) == '22:00:00'){
+          getJSONData();
+        }
+
+      }
+    });
+  }
+
+  /// [E] 출발 시간 타이머 관련 변수 및 method
 
   /// [S] alarmInfo DB 관련 변수 및 method
   final AlarmInfoProvider _alarmInfoProvider = AlarmInfoProvider();
@@ -47,18 +105,34 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   List<AlarmInfo>? _currentAlarms;
   Future<AlarmInfo>? _todayAlarm;
 
+  void _setTodayAlarmData(bool value) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setBool('todayAlarm', value);
+  }
+
+  void _loadTodayAlarmData() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    setState(() {
+      var value = pref.getBool('todayAlarm');
+      todayAlarm = value ?? false;
+    });
+  }
+
   void loadTodayAlarm() {
     _todayAlarm = _alarmInfoProvider.getTodayAlarm(DateFormat('yyyy-MM-dd').format(DateTime.now()));
     if (mounted) setState(() {});
     _todayAlarm?.then((data) {
       if (data.alarmDate != "") {
         todayAlarm = true;
+        _setTodayAlarmData(todayAlarm);
         destination = data.location;
         x = data.x;
         y = data.y;
         // TODO: server에서 departureTime 가져오기?
+        getJSONData();
       }else{
         todayAlarm = false;
+        _setTodayAlarmData(todayAlarm);
         defaultLocation = _locationInfoProvider.getDefaultLocation();
         if (mounted) setState(() {});
         defaultLocation?.then((data) {
@@ -98,45 +172,6 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
 
   /// [E] alarmInfo DB 관련 변수 및 method
 
-  /// [S] 출발 시간 타이머 관련 변수 및 method
-  DateTime departureTime = DateTime.now().add(Duration(seconds: 10)); // DateTime.parse('2023-05-19 04:01:59'); //TODO: get from server
-  Timer? _timer;
-  bool _flagTimer = false;
-  Duration duration = const Duration(seconds: 1);
-
-  void _startTimer() {
-    if (_flagTimer == false) {
-      setState(() => _flagTimer = true);
-      duration = departureTime.difference(DateTime.now());
-      _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-        _setCountDown();
-      });
-    }
-  }
-
-  void _stopTimer() {
-    setState(() {
-      _timer!.cancel();
-      _flagTimer = false;
-    });
-  }
-
-  void _setCountDown() {
-    const reduceSecondsBy = 1;
-    setState(() {
-      final seconds = duration.inSeconds - reduceSecondsBy;
-      if (seconds - 1 < 0) {
-        duration = const Duration(seconds: 0);
-        _timer!.cancel();
-        deleteDateAlarm(departureTime);
-      } else {
-        duration = Duration(seconds: seconds);
-      }
-    });
-  }
-
-  /// [E] 출발 시간 타이머 관련 변수 및 method
-
   /// [S] 새로운 알람 생성 관련 변수 및 method
   void _showDialog(Widget child) {
     showCupertinoModalPopup<void>(
@@ -161,6 +196,19 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
 
   /// [E] 새로운 알람 생성 관련 변수 및 method
 
+
+  /// [S] route
+  var exBox = Hive.box('box_name');
+
+  late List route;  // TODO: SharedPreferences
+
+  void _setRouteData(int value) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString('departure', DateFormat().format(departureTime));
+  }
+
+  /// [E] route
+
   @override
   bool get wantKeepAlive => true;
 
@@ -172,11 +220,22 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
     y = '';
 
     todayAlarm = false;
+    _loadTodayAlarmData();
+
     todayWakeUpCheck = false;
     todayWakeUpHelp = false;
 
+    _flagTimer = false;
+
+    // route = [];
+    route = exBox.get('route', defaultValue: []);
+    departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(const Duration(minutes: 1)));
+
     /// [S] 오늘 막차 알림 정보 가져오기
-    loadTodayAlarm();
+
+    if(todayAlarm == false){
+      loadTodayAlarm();
+    }
 
     if (todayAlarm) {
       _startTimer();
@@ -856,9 +915,23 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                   // This is called when the user toggles the switch.
                   setState(() {
                     todayAlarm = value ?? false;
+                    _setTodayAlarmData(todayAlarm);
                   });
                   if (todayAlarm) {
-                    _startTimer();
+                    route = exBox.get('route', defaultValue: []);
+                    departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(minutes: 2)));
+                    if (route.isEmpty){
+                      getJSONData().then((value) {
+                        route = exBox.get('route', defaultValue: []);
+                        departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(minutes: 3)));
+                        sleep(const Duration(milliseconds: 500));
+                        _startTimer();
+                      });
+                    }else{
+                      sleep(const Duration(milliseconds: 500));
+                      _startTimer();
+                      // print(route);
+                    }
                   } else {
                     _stopTimer();
                   }
@@ -944,6 +1017,8 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                                     bottomState(() {
                                       setState(() {
                                         destination = location.location;
+                                        x = location.x;
+                                        y = location.y;
                                         // TODO: 도로명 주소 혹은 좌표 추가
                                       });
                                     });
@@ -1005,6 +1080,45 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                     },
                   )
                 ]))));
+  }
+
+  Future<Position?> getLocation() async {
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
+    return position;
+  }
+
+  Future<String?> getJSONData() async {
+
+    Future<Position?> position = getLocation();
+    if (mounted) setState(() {});
+    position?.then((data) async {
+      // var url = 'http://도메인주소/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+      // var response = await http.get(Uri.parse(url), headers: {"Authorization": ""});
+
+      // var response = await rootBundle.loadString('json/response.json');
+
+      var response = await rootBundle.loadString('assets/json/response.json').then((response) {
+        setState(() {
+          route.clear();
+          // var dataConvertedToJSON = json.decode(response.body);
+          var dataConvertedToJSON = json.decode(response);
+          departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
+          duration = departureTime.difference(DateTime.now());
+          // TODO: set _setDepartureTimeData
+          List result = dataConvertedToJSON["pathInfo"]["subPath"];
+          route.addAll(result);
+          exBox.put('route', route);  // TODO: test hive
+          exBox.put('departureTime', departureTime);
+        });
+
+      });
+
+      // return response.body;
+      return response;
+    });
+
+    return "";
   }
 }
 

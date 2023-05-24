@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:last_transport/app/modules/views/home.dart';
+import 'package:provider/provider.dart';
 
-void main() {
+// import 'Provider/todayAlarm.dart';
+
+void main() async{
+  await Hive.initFlutter();
+  await Hive.openBox('box_name');
+
   runApp(const MyApp());
 }
 
