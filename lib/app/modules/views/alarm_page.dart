@@ -206,6 +206,12 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   bool get wantKeepAlive => true;
 
   @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
 
