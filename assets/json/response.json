@@ -5,70 +5,779 @@
   "pathInfo": {
     "pathType": 1,
     "info": {
-      "trafficDistance": 19300,
-      "totalWalk": 739,
-      "totalTime": 48,
+      "trafficDistance": 21052,
+      "totalWalk": 1392,
+      "totalTime": 68,
       "payment": 1450,
-      "busTransitCount": 0,
+      "busTransitCount": 1,
       "subwayTransitCount": 2,
       "mapObj": "4:2:419:432@7:2:736:739",
       "firstStartStation": "한성대입구",
       "lastEndStation": "중앙대후문",
-      "totalStationCount": 16,
-      "busStationCount": 0,
+      "totalStationCount": 19,
+      "busStationCount": 3,
       "subwayStationCount": 16,
-      "totalDistance": 20039,
-      "totalWalkTime": -1,
+      "totalDistance": 21052,
+      "totalWalkTime": 26,
       "checkIntervalTime": 100,
       "checkIntervalTimeOverYn": "N"
     },
     "subPath": [
       {
         "trafficType": 3,
-        "distance": 774,
+        "distance": 754,
         "sectionTime": 12,
         "startName": "출발지",
         "startX": 127.0115248415087,
         "startY": 37.58741779549912,
         "endName": "한성대입구",
-        "endX": 127.006008,
+        "endX": 127.006198,
         "endY": 37.58848,
         "steps": [
           {
-            "streetName": "보행자도로",
-            "distance": 50,
-            "description": "보행자도로 을 따라 50m 이동",
-            "linestring": "127.011505,37.587437 127.01147,37.58741 127.01139,37.587337 127.011345,37.58725 127.011345,37.58723 127.01138,37.587147 127.01146,37.58705"
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                127.01150353198466,
+                37.58743617777082
+              ]
+            },
+            "properties": {
+              "totalDistance": 754,
+              "totalTime": 671,
+              "index": 0,
+              "pointIndex": 0,
+              "name": "",
+              "description": "보행자도로 을 따라 50m 이동",
+              "direction": "",
+              "nearPoiName": "",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "",
+              "facilityType": "11",
+              "facilityName": "",
+              "turnType": 200,
+              "pointType": "SP"
+            }
           },
           {
-            "streetName": "보행자도로",
-            "distance": 75,
-            "description": "삼선SK뷰상가 에서 우회전 후 보행자도로 을 따라 75m 이동 ",
-            "linestring": "127.01146,37.58705 127.01136,37.586853 127.01127,37.586773 127.01117,37.586746 127.01083,37.586708"
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  127.01150353198466,
+                  37.58743617777082
+                ],
+                [
+                  127.01146464734923,
+                  37.58741117997898
+                ],
+                [
+                  127.01138687870902,
+                  37.58733896475714
+                ],
+                [
+                  127.01134244083738,
+                  37.587250085405735
+                ],
+                [
+                  127.01134244138917,
+                  37.587230643222334
+                ],
+                [
+                  127.01138410662357,
+                  37.58714732032804
+                ],
+                [
+                  127.01145910246889,
+                  37.58705288821371
+                ]
+              ]
+            },
+            "properties": {
+              "index": 1,
+              "lineIndex": 0,
+              "name": "보행자도로",
+              "description": "보행자도로, 50m",
+              "distance": 50,
+              "time": 41,
+              "roadType": 0,
+              "categoryRoadType": 0,
+              "facilityType": "11",
+              "facilityName": ""
+            }
           },
           {
-            "streetName": "",
-            "distance": 182,
-            "description": "우회전 후 182m 이동 ",
-            "linestring": "127.01083,37.586708 127.0108,37.586838 127.010765,37.58702 127.010735,37.587135 127.010635,37.587543 127.01062,37.58762 127.01061,37.587666 127.01052,37.588074 127.01047,37.58828 127.01046,37.58832"
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                127.01145910246889,
+                37.58705288821371
+              ]
+            },
+            "properties": {
+              "index": 2,
+              "pointIndex": 1,
+              "name": "삼선SK뷰상가",
+              "description": "삼선SK뷰상가 에서 우회전 후 보행자도로 을 따라 75m 이동 ",
+              "direction": "",
+              "nearPoiName": "삼선SK뷰상가",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "",
+              "facilityType": "11",
+              "facilityName": "",
+              "turnType": 13,
+              "pointType": "GP"
+            }
           },
           {
-            "streetName": "보행자도로",
-            "distance": 9,
-            "description": "고기백화점 에서 좌측 횡단보도 후 보행자도로 을 따라 9m 이동 ",
-            "linestring": "127.01046,37.58832 127.010376,37.58829"
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  127.01145910246889,
+                  37.58705288821371
+                ],
+                [
+                  127.01136189478223,
+                  37.5868529097229
+                ],
+                [
+                  127.01126746123053,
+                  37.586772361837184
+                ],
+                [
+                  127.01117024865651,
+                  37.58674458554223
+                ],
+                [
+                  127.01083416920021,
+                  37.586708472589805
+                ]
+              ]
+            },
+            "properties": {
+              "index": 3,
+              "lineIndex": 1,
+              "name": "보행자도로",
+              "description": "보행자도로, 75m",
+              "distance": 75,
+              "time": 63,
+              "roadType": 23,
+              "categoryRoadType": 0,
+              "facilityType": "11",
+              "facilityName": ""
+            }
           },
           {
-            "streetName": "삼선교로",
-            "distance": 422,
-            "description": "세무법인다솔 에서 직진 후 삼선교로 을 따라 422m 이동 ",
-            "linestring": "127.010376,37.58829 127.01034,37.5883 127.01029,37.588284 127.00998,37.588177 127.00995,37.58817 127.00987,37.588154 127.00958,37.588104 127.00956,37.588104 127.00939,37.588093 127.00927,37.588074 127.00919,37.58807 127.00912,37.58806 127.00902,37.588024 127.00894,37.587986 127.00892,37.587975 127.00887,37.58795 127.008766,37.5879 127.00874,37.58789 127.00858,37.58778 127.00849,37.587704 127.00842,37.58764 127.008415,37.587635 127.0084,37.587635 127.00826,37.587578 127.00818,37.587555 127.00799,37.58752 127.00796,37.587513 127.007935,37.587513 127.00791,37.587513 127.00781,37.587513 127.00777,37.587517 127.00766,37.587524 127.0075,37.58756 127.00746,37.587563 127.00736,37.587593 127.00727,37.587643 127.007164,37.587696 127.00704,37.587757 127.00664,37.58796 127.0065,37.588036 127.00642,37.58809 127.00627,37.588177 127.00622,37.588203 127.00615,37.588215 127.0061,37.588215"
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                127.01083416920021,
+                37.586708472589805
+              ]
+            },
+            "properties": {
+              "index": 4,
+              "pointIndex": 2,
+              "name": "",
+              "description": "우회전 후 182m 이동 ",
+              "direction": "",
+              "nearPoiName": "",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "",
+              "facilityType": "11",
+              "facilityName": "",
+              "turnType": 13,
+              "pointType": "GP"
+            }
           },
           {
-            "streetName": "창경궁로",
-            "distance": 9,
-            "description": "창경궁로, 9m",
-            "linestring": "127.0061,37.588215 127.00607,37.588215 127.00601,37.588207"
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  127.01083416920021,
+                  37.586708472589805
+                ],
+                [
+                  127.01080361272444,
+                  37.58683901241495
+                ],
+                [
+                  127.0107647222559,
+                  37.58701954627618
+                ],
+                [
+                  127.01073416617422,
+                  37.587136198827416
+                ],
+                [
+                  127.01063416377869,
+                  37.5875417054266
+                ],
+                [
+                  127.01061749642372,
+                  37.5876194738606
+                ],
+                [
+                  127.01060916250974,
+                  37.58766669044189
+                ],
+                [
+                  127.0105230477372,
+                  37.588072197290366
+                ],
+                [
+                  127.010470268857,
+                  37.58828050544932
+                ],
+                [
+                  127.01046193510068,
+                  37.58832216712104
+                ]
+              ]
+            },
+            "properties": {
+              "index": 5,
+              "lineIndex": 2,
+              "name": "",
+              "description": ", 182m",
+              "distance": 182,
+              "time": 160,
+              "roadType": 23,
+              "categoryRoadType": 0,
+              "facilityType": "11",
+              "facilityName": ""
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                127.01046193510068,
+                37.58832216712104
+              ]
+            },
+            "properties": {
+              "index": 6,
+              "pointIndex": 3,
+              "name": "고기백화점",
+              "description": "고기백화점 에서 좌측 횡단보도 후 보행자도로 을 따라 9m 이동 ",
+              "direction": "",
+              "nearPoiName": "고기백화점",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "",
+              "facilityType": "15",
+              "facilityName": "",
+              "turnType": 212,
+              "pointType": "GP"
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  127.01046193510068,
+                  37.58832216712104
+                ],
+                [
+                  127.01037583270426,
+                  37.588291613571066
+                ]
+              ]
+            },
+            "properties": {
+              "index": 7,
+              "lineIndex": 3,
+              "name": "보행자도로",
+              "description": "보행자도로, 9m",
+              "distance": 9,
+              "time": 5,
+              "roadType": 21,
+              "categoryRoadType": 0,
+              "facilityType": "15",
+              "facilityName": ""
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                127.01037583270426,
+                37.588291613571066
+              ]
+            },
+            "properties": {
+              "index": 8,
+              "pointIndex": 4,
+              "name": "세무법인다솔",
+              "description": "세무법인다솔 에서 직진 후 삼선교로 을 따라 7m 이동 ",
+              "direction": "",
+              "nearPoiName": "세무법인다솔",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "",
+              "facilityType": "11",
+              "facilityName": "",
+              "turnType": 11,
+              "pointType": "GP"
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  127.01037583270426,
+                  37.588291613571066
+                ],
+                [
+                  127.0103397247264,
+                  37.58829716783163
+                ],
+                [
+                  127.01029528472647,
+                  37.58828327975907
+                ]
+              ]
+            },
+            "properties": {
+              "index": 9,
+              "lineIndex": 4,
+              "name": "삼선교로",
+              "description": "삼선교로, 7m",
+              "distance": 7,
+              "time": 36,
+              "roadType": 21,
+              "categoryRoadType": 0,
+              "facilityType": "11",
+              "facilityName": ""
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                127.01029528472647,
+                37.58828327975907
+              ]
+            },
+            "properties": {
+              "index": 10,
+              "pointIndex": 5,
+              "name": "세무법인다솔",
+              "description": "세무법인다솔 에서 횡단보도 후 보행자도로 을 따라 12m 이동 ",
+              "direction": "",
+              "nearPoiName": "세무법인다솔",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "",
+              "facilityType": "15",
+              "facilityName": "",
+              "turnType": 211,
+              "pointType": "GP"
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  127.01029528472647,
+                  37.58828327975907
+                ],
+                [
+                  127.01024528636646,
+                  37.58838604468681
+                ]
+              ]
+            },
+            "properties": {
+              "index": 11,
+              "lineIndex": 5,
+              "name": "보행자도로",
+              "description": "보행자도로, 12m",
+              "distance": 12,
+              "time": 8,
+              "roadType": 21,
+              "categoryRoadType": 0,
+              "facilityType": "15",
+              "facilityName": ""
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                127.01024528636646,
+                37.58838604468681
+              ]
+            },
+            "properties": {
+              "index": 12,
+              "pointIndex": 6,
+              "name": "",
+              "description": "좌회전 후 삼선교로 을 따라 391m 이동 ",
+              "direction": "",
+              "nearPoiName": "",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "",
+              "facilityType": "11",
+              "facilityName": "",
+              "turnType": 12,
+              "pointType": "GP"
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  127.01024528636646,
+                  37.58838604468681
+                ],
+                [
+                  127.00998697925608,
+                  37.588291606582196
+                ],
+                [
+                  127.00983977155431,
+                  37.588252719569724
+                ],
+                [
+                  127.00979533155439,
+                  37.58823883149718
+                ],
+                [
+                  127.00977866656426,
+                  37.588233276288136
+                ],
+                [
+                  127.0096981185865,
+                  37.588224942476174
+                ],
+                [
+                  127.00955090993881,
+                  37.588219384920926
+                ],
+                [
+                  127.00940647889459,
+                  37.58821104996084
+                ],
+                [
+                  127.00911483999099,
+                  37.58816938289794
+                ],
+                [
+                  127.00890374985336,
+                  37.58810827509936
+                ],
+                [
+                  127.00884542223028,
+                  37.588094386777264
+                ],
+                [
+                  127.0087815397156,
+                  37.58807494344582
+                ],
+                [
+                  127.00872876745709,
+                  37.58804994540451
+                ],
+                [
+                  127.00864544345234,
+                  37.58798883990218
+                ],
+                [
+                  127.00842880063007,
+                  37.587844408360915
+                ],
+                [
+                  127.00830103694062,
+                  37.58775830496705
+                ],
+                [
+                  127.0081899375319,
+                  37.58770275387512
+                ],
+                [
+                  127.00804272990888,
+                  37.58766108940812
+                ],
+                [
+                  127.0079260741898,
+                  37.58764997749263
+                ],
+                [
+                  127.00789274389426,
+                  37.58764997689365
+                ],
+                [
+                  127.00774275756436,
+                  37.58764997419825
+                ],
+                [
+                  127.00760110325663,
+                  37.58766941383597
+                ],
+                [
+                  127.00749277916563,
+                  37.587691631527434
+                ],
+                [
+                  127.00740389711649,
+                  37.58773606920641
+                ],
+                [
+                  127.00725390897388,
+                  37.58779994797064
+                ],
+                [
+                  127.00660395875362,
+                  37.58813323086249
+                ],
+                [
+                  127.00653174082774,
+                  37.58821377575285
+                ],
+                [
+                  127.0064984092712,
+                  37.58825821443008
+                ],
+                [
+                  127.00647896533778,
+                  37.58830265335686
+                ],
+                [
+                  127.00649562922446,
+                  37.588347092932516
+                ],
+                [
+                  127.00651784879089,
+                  37.5883693129699
+                ],
+                [
+                  127.00653729099037,
+                  37.58838597804786
+                ]
+              ]
+            },
+            "properties": {
+              "index": 13,
+              "lineIndex": 6,
+              "name": "삼선교로",
+              "description": "삼선교로, 391m",
+              "distance": 391,
+              "time": 309,
+              "roadType": 21,
+              "categoryRoadType": 0,
+              "facilityType": "11",
+              "facilityName": ""
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                127.00653729099037,
+                37.58838597804786
+              ]
+            },
+            "properties": {
+              "index": 14,
+              "pointIndex": 7,
+              "name": "한성대입구역  2번출구",
+              "description": "한성대입구역  2번출구 에서 좌측 횡단보도 후 5m 이동 ",
+              "direction": "",
+              "nearPoiName": "한성대입구역  2번출구",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "한성대입구역",
+              "facilityType": "15",
+              "facilityName": "",
+              "turnType": 212,
+              "pointType": "GP"
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  127.00653729099037,
+                  37.58838597804786
+                ],
+                [
+                  127.00650395951263,
+                  37.58842763927032
+                ]
+              ]
+            },
+            "properties": {
+              "index": 15,
+              "lineIndex": 7,
+              "name": "",
+              "description": ", 5m",
+              "distance": 5,
+              "time": 3,
+              "roadType": 21,
+              "categoryRoadType": 0,
+              "facilityType": "15",
+              "facilityName": ""
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                127.00650395951263,
+                37.58842763927032
+              ]
+            },
+            "properties": {
+              "index": 16,
+              "pointIndex": 8,
+              "name": "한성대입구역  2번출구",
+              "description": "한성대입구역  2번출구 에서 좌회전 후 4m 이동 ",
+              "direction": "",
+              "nearPoiName": "한성대입구역  2번출구",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "",
+              "facilityType": "11",
+              "facilityName": "",
+              "turnType": 12,
+              "pointType": "GP"
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  127.00650395951263,
+                  37.58842763927032
+                ],
+                [
+                  127.00646229719501,
+                  37.5884081963383
+                ]
+              ]
+            },
+            "properties": {
+              "index": 17,
+              "lineIndex": 8,
+              "name": "",
+              "description": ", 4m",
+              "distance": 4,
+              "time": 33,
+              "roadType": 21,
+              "categoryRoadType": 0,
+              "facilityType": "11",
+              "facilityName": ""
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                127.00646229719501,
+                37.5884081963383
+              ]
+            },
+            "properties": {
+              "index": 18,
+              "pointIndex": 9,
+              "name": "한성대입구역  2번출구",
+              "description": "한성대입구역  2번출구 에서 횡단보도 후 보행자도로 을 따라 19m 이동 ",
+              "direction": "",
+              "nearPoiName": "한성대입구역  2번출구",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "",
+              "facilityType": "15",
+              "facilityName": "",
+              "turnType": 211,
+              "pointType": "GP"
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  127.00646229719501,
+                  37.5884081963383
+                ],
+                [
+                  127.00635674708208,
+                  37.588555399543914
+                ]
+              ]
+            },
+            "properties": {
+              "index": 19,
+              "lineIndex": 9,
+              "name": "보행자도로",
+              "description": "보행자도로, 19m",
+              "distance": 19,
+              "time": 13,
+              "roadType": 21,
+              "categoryRoadType": 0,
+              "facilityType": "15",
+              "facilityName": ""
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                127.00635674708208,
+                37.588555399543914
+              ]
+            },
+            "properties": {
+              "index": 20,
+              "pointIndex": 10,
+              "name": "한성대입구",
+              "description": "도착",
+              "direction": "",
+              "nearPoiName": "한성대입구",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "한성대입구역",
+              "facilityType": "",
+              "facilityName": "",
+              "turnType": 201,
+              "pointType": "EP"
+            }
           }
         ]
       },
@@ -81,7 +790,8 @@
           {
             "name": "수도권 4호선",
             "subwayCode": 4,
-            "subwayCityCode": 1000
+            "subwayCityCode": 1000,
+            "departureTime": "2023-05-25T23:45:00"
           }
         ],
         "startName": "한성대입구",
@@ -292,7 +1002,7 @@
         "trafficType": 2,
         "distance": 630,
         "sectionTime": 5,
-        "stationCount": 4,
+        "stationCount": 3,
         "lane": [
           {
             "busNo": "동작21",
@@ -308,7 +1018,7 @@
         "startY": 37.5027,
         "endName": "중앙대후문",
         "endX": 126.954025,
-        "endY": 37.505091666666665,
+        "endY": 37.505071,
         "startID": 80985,
         "startStationCityCode": 1000,
         "startStationProviderCode": 4,
@@ -323,6 +1033,7 @@
           "stations": [
             {
               "index": 0,
+              "idx": 15,
               "stationID": 80985,
               "stationName": "상도역1번출구",
               "stationCityCode": 1000,
@@ -335,6 +1046,7 @@
             },
             {
               "index": 1,
+              "idx": 16,
               "stationID": 125274,
               "stationName": "상도역",
               "stationCityCode": 1000,
@@ -347,6 +1059,7 @@
             },
             {
               "index": 2,
+              "idx": 17,
               "stationID": 196080,
               "stationName": "중대후문입구",
               "stationCityCode": 1000,
@@ -359,6 +1072,7 @@
             },
             {
               "index": 3,
+              "idx": 18,
               "stationID": 193831,
               "stationName": "중앙대후문",
               "stationCityCode": 1000,
@@ -374,44 +1088,318 @@
       },
       {
         "trafficType": 3,
-        "distance": 279,
+        "distance": 231,
         "sectionTime": 7,
         "startName": "중앙대후문",
         "startX": 126.954025,
-        "startY": 37.505091666666665,
+        "startY": 37.505071,
         "endName": "도착지",
         "endX": 126.9555870181663,
         "endY": 37.5038217213134,
         "steps": [
           {
-            "streetName": "흑석로",
-            "distance": 16,
-            "description": "흑석로 을 따라 16m 이동",
-            "linestring": "126.95402,37.505096 126.953995,37.505054 126.95399,37.505 126.95394,37.504974"
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                126.95400832259378,
+                37.505075276665565
+              ]
+            },
+            "properties": {
+              "totalDistance": 231,
+              "totalTime": 190,
+              "index": 0,
+              "pointIndex": 0,
+              "name": "",
+              "description": "흑석로 을 따라 14m 이동",
+              "direction": "",
+              "nearPoiName": "",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "",
+              "facilityType": "11",
+              "facilityName": "",
+              "turnType": 200,
+              "pointType": "SP"
+            }
           },
           {
-            "streetName": "",
-            "distance": 21,
-            "description": "좌회전 후 21m 이동 ",
-            "linestring": "126.95394,37.504974 126.954155,37.504883"
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  126.95400832259378,
+                  37.505075276665565
+                ],
+                [
+                  126.95399721304274,
+                  37.50505583428164
+                ],
+                [
+                  126.9539888820346,
+                  37.50500028503226
+                ],
+                [
+                  126.95394444242076,
+                  37.50497250968682
+                ]
+              ]
+            },
+            "properties": {
+              "index": 1,
+              "lineIndex": 0,
+              "name": "흑석로",
+              "description": "흑석로, 14m",
+              "distance": 14,
+              "time": 9,
+              "roadType": 21,
+              "categoryRoadType": 0,
+              "facilityType": "11",
+              "facilityName": ""
+            }
           },
           {
-            "streetName": "",
-            "distance": 136,
-            "description": "좌회전 후 136m 이동 ",
-            "linestring": "126.954155,37.504883 126.95449,37.50478 126.95554,37.50435"
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                126.95394444242076,
+                37.50497250968682
+              ]
+            },
+            "properties": {
+              "index": 2,
+              "pointIndex": 1,
+              "name": "",
+              "description": "좌회전 후 21m 이동 ",
+              "direction": "",
+              "nearPoiName": "",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "",
+              "facilityType": "11",
+              "facilityName": "",
+              "turnType": 12,
+              "pointType": "GP"
+            }
           },
           {
-            "streetName": "",
-            "distance": 58,
-            "description": "중앙대학교 교수연구동 에서 우회전 후 58m 이동 ",
-            "linestring": "126.95554,37.50435 126.95556,37.50383"
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  126.95394444242076,
+                  37.50497250968682
+                ],
+                [
+                  126.95415831433728,
+                  37.504883634953806
+                ]
+              ]
+            },
+            "properties": {
+              "index": 3,
+              "lineIndex": 1,
+              "name": "",
+              "description": ", 21m",
+              "distance": 21,
+              "time": 18,
+              "roadType": 21,
+              "categoryRoadType": 0,
+              "facilityType": "11",
+              "facilityName": ""
+            }
           },
           {
-            "streetName": "보행자도로",
-            "distance": 2,
-            "description": "좌회전 후 보행자도로 을 따라 2m 이동 ",
-            "linestring": "126.95556,37.50383 126.955574,37.503815"
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                126.95415831433728,
+                37.504883634953806
+              ]
+            },
+            "properties": {
+              "index": 4,
+              "pointIndex": 2,
+              "name": "",
+              "description": "좌회전 후 136m 이동 ",
+              "direction": "",
+              "nearPoiName": "",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "",
+              "facilityType": "11",
+              "facilityName": "",
+              "turnType": 12,
+              "pointType": "GP"
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  126.95415831433728,
+                  37.504883634953806
+                ],
+                [
+                  126.95449439773715,
+                  37.50478087513284
+                ],
+                [
+                  126.95554431433413,
+                  37.50434761094008
+                ]
+              ]
+            },
+            "properties": {
+              "index": 5,
+              "lineIndex": 2,
+              "name": "",
+              "description": ", 136m",
+              "distance": 136,
+              "time": 114,
+              "roadType": 0,
+              "categoryRoadType": 0,
+              "facilityType": "11",
+              "facilityName": ""
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                126.95554431433413,
+                37.50434761094008
+              ]
+            },
+            "properties": {
+              "index": 6,
+              "pointIndex": 3,
+              "name": "중앙대학교 교수연구동",
+              "description": "중앙대학교 교수연구동 에서 우회전 후 58m 이동 ",
+              "direction": "",
+              "nearPoiName": "중앙대학교 교수연구동",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "",
+              "facilityType": "11",
+              "facilityName": "",
+              "turnType": 13,
+              "pointType": "GP"
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  126.95554431433413,
+                  37.50434761094008
+                ],
+                [
+                  126.95556099412812,
+                  37.503828227149896
+                ]
+              ]
+            },
+            "properties": {
+              "index": 7,
+              "lineIndex": 3,
+              "name": "",
+              "description": ", 58m",
+              "distance": 58,
+              "time": 48,
+              "roadType": 0,
+              "categoryRoadType": 0,
+              "facilityType": "11",
+              "facilityName": ""
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                126.95556099412812,
+                37.503828227149896
+              ]
+            },
+            "properties": {
+              "index": 8,
+              "pointIndex": 4,
+              "name": "",
+              "description": "좌회전 후 보행자도로 을 따라 2m 이동 ",
+              "direction": "",
+              "nearPoiName": "",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "",
+              "facilityType": "11",
+              "facilityName": "",
+              "turnType": 12,
+              "pointType": "GP"
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  126.95556099412812,
+                  37.503828227149896
+                ],
+                [
+                  126.9555748821438,
+                  37.50381434012335
+                ]
+              ]
+            },
+            "properties": {
+              "index": 9,
+              "lineIndex": 4,
+              "name": "보행자도로",
+              "description": "보행자도로, 2m",
+              "distance": 2,
+              "time": 1,
+              "roadType": 23,
+              "categoryRoadType": 0,
+              "facilityType": "11",
+              "facilityName": ""
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                126.9555748821438,
+                37.50381434012335
+              ]
+            },
+            "properties": {
+              "index": 10,
+              "pointIndex": 5,
+              "name": "한성대입구",
+              "description": "도착",
+              "direction": "",
+              "nearPoiName": "한성대입구",
+              "nearPoiX": "0.0",
+              "nearPoiY": "0.0",
+              "intersectionName": "한성대입구",
+              "facilityType": "",
+              "facilityName": "",
+              "turnType": 201,
+              "pointType": "EP"
+            }
           }
         ]
       }
