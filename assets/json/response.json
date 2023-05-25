@@ -1,6 +1,6 @@
 {
   "pathExistence": true,
-  "arrivalTime": "2023-05-26T00:43:00",
+  "arrivalTime": "2023-05-26T00:53:00",
   "departureTime": "2023-05-25T23:45:00",
   "pathInfo": {
     "pathType": 1,
@@ -791,7 +791,7 @@
             "name": "수도권 4호선",
             "subwayCode": 4,
             "subwayCityCode": 1000,
-            "departureTime": "2023-05-25T23:45:00"
+            "departureTime": "2023-05-25T23:57:00"
           }
         ],
         "startName": "한성대입구",
@@ -934,7 +934,8 @@
           {
             "name": "수도권 7호선",
             "subwayCode": 7,
-            "subwayCityCode": 1000
+            "subwayCityCode": 1000,
+            "departureTime": "2023-05-26T00:28:00"
           }
         ],
         "startName": "이수",
@@ -1010,7 +1011,8 @@
             "busID": 568,
             "busLocalBlID": "119900024",
             "busCityCode": 1000,
-            "busProviderCode": 4
+            "busProviderCode": 4,
+            "departureTime": "2023-05-26T00:42:00"
           }
         ],
         "startName": "상도역1번출구",
