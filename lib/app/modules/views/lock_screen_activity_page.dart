@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:last_transport/app/modules/views/walk_page.dart';
 import 'package:naver_map_plugin/naver_map_plugin.dart';
 
 import '../../data/theme_data.dart';
@@ -109,17 +108,12 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
 
   @override
   Widget build(BuildContext context) {
-    String strDigits(int n) => n.toString().padLeft(2, '0');
-    final hours = strDigits(duration.inHours.remainder(24));
-    final minutes = strDigits(duration.inMinutes.remainder(60));
-    final seconds = strDigits(duration.inSeconds.remainder(60));
-
 
     route = exBox.get('route', defaultValue: []);
     departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(minutes: 30)));
     duration = departureTime.difference(DateTime.now());
 
-    if(route.isNotEmpty){
+    if(route.isNotEmpty && _coordinates.isEmpty && _markers.isEmpty){
       route[0]["steps"].forEach((feature) {
         if (feature["geometry"]["type"] == "Point") {
           _coordinates.add(LatLng(feature["geometry"]["coordinates"][1], feature["geometry"]["coordinates"][0]));
@@ -138,6 +132,11 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
         ));
       });
     }
+
+    String strDigits(int n) => n.toString().padLeft(2, '0');
+    final hours = strDigits(duration.inHours.remainder(24));
+    final minutes = strDigits(duration.inMinutes.remainder(60));
+    final seconds = strDigits(duration.inSeconds.remainder(60));
 
     return Scaffold(
         backgroundColor: CustomColors.pageBackgroundColor,
@@ -232,6 +231,7 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
                       child: NaverMap(
                         onMapCreated: onMapCreated,
                         mapType: _mapType,
+                        locationButtonEnable: true,
                         markers: [
                           Marker(markerId: 'start', position: LatLng(route[0]["startY"], route[0]["startX"]), width: 30, height: 40),
                           Marker(markerId: 'end', position: LatLng(route[0]["endY"], route[0]["endX"]), width: 30, height: 40),

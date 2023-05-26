@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:last_transport/app/modules/views/lock_screen_activity_page.dart';
+import 'package:last_transport/app/modules/views/subway_page.dart';
 import 'package:last_transport/app/modules/views/walk_page.dart';
 
 import '../../data/theme_data.dart';
+import 'bus_page.dart';
 
 class CurrentRoutePage extends StatefulWidget {
   const CurrentRoutePage({Key? key}) : super(key: key);
@@ -36,33 +38,31 @@ class _CurrentRoutePageState extends State<CurrentRoutePage> with AutomaticKeepA
   @override
   void initState() {
     if (exBox.get("isGuiding", defaultValue: false)){
-      int nextRoute = exBox.get("nextRoute", defaultValue: 0);
-      if(nextRoute == 1){
-        // page = SubwayPage();
-        print(nextRoute);
-        page = LockScreenActivityPage();
+      int nextRouteType = exBox.get("nextRouteType", defaultValue: 0);
+      if(nextRouteType == 1){
+        page = SubwayPage();
+        // print(nextRouteType);
       }
-      else if (nextRoute == 2){
-        // page = BusPage();
-        print(nextRoute);
-        page = LockScreenActivityPage();
-      } else if (nextRoute == 3) {
-        print(nextRoute);
+      else if (nextRouteType == 2){
+        // print(nextRouteType);
+        page = BusPage();
+      } else if (nextRouteType == 3) {
+        // print(nextRouteType);
         page = WalkPage();
-      } else if (nextRoute == 4) {
-        print(nextRoute);
+      } else if (nextRouteType == 4) {
+        // print(nextRouteType);
         page = WalkPage();
-      } else if (nextRoute == 5) {
+      } else if (nextRouteType == 5) {
         // page = TexiPage();
-        print(nextRoute);
+        // print(nextRouteType);
         page = LockScreenActivityPage();
       } else {
-        print(nextRoute);
+        // print(nextRouteType);
         page = LockScreenActivityPage();
       }
     }
     else {
-      print('else');
+      // print('else');
       page = LockScreenActivityPage();
     }
     super.initState();

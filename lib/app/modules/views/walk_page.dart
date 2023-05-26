@@ -1,9 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:naver_map_plugin/naver_map_plugin.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 
 import '../../data/theme_data.dart';
 import 'home.dart';
@@ -69,6 +72,7 @@ class _WalkPage extends State<WalkPage> {
         _timer!.cancel();
       } else {
         duration = Duration(seconds: seconds);
+        findCurrentStation();
       }
     });
   }
@@ -116,6 +120,7 @@ class _WalkPage extends State<WalkPage> {
       });
     }
     else{
+
       route[0]["steps"].forEach((feature) {
         if (feature["geometry"]["type"] == "Point") {
           _coordinates.add(LatLng(feature["geometry"]["coordinates"][1], feature["geometry"]["coordinates"][0]));
@@ -135,7 +140,7 @@ class _WalkPage extends State<WalkPage> {
       });
     }
 
-
+    findCurrentStation();
 
     _startTimer();
   }
@@ -168,10 +173,11 @@ class _WalkPage extends State<WalkPage> {
                 // height: 200,
                 width: 380,
                 child: ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
                   padding: const EdgeInsets.only(top: 0),
-                  itemCount: route.length - 2,
+                  itemCount: route.length - subPathIndex,
                   itemBuilder: (context, index) {
                     return Align(
                         alignment: Alignment.centerLeft,
@@ -181,11 +187,11 @@ class _WalkPage extends State<WalkPage> {
                           ),
                           SizedBox(
                             width: 30,
-                            child: _transportIcon(index+1),
+                            child: _transportIcon(index+subPathIndex),
                           ),
                           SizedBox(
                             width: 60,
-                            child: _transportName(index+1),
+                            child: _transportName(index+subPathIndex),
                           ),
                           SizedBox(
                             width: 30,
@@ -194,7 +200,7 @@ class _WalkPage extends State<WalkPage> {
                             height: 20,
                             child:
                             Text(
-                              '${route[index + 1]["startName"]}',
+                              '${route[index+subPathIndex]["startName"]}',
                               style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
                             ),
                           ),
@@ -202,90 +208,125 @@ class _WalkPage extends State<WalkPage> {
                   },
                 ),
               ),
-
-              Divider(
-                color: Colors.white54,
-              ),
-              SizedBox(height: 5),
-              Text(
-                '현재 경로',
-                style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
-              ),
-              SizedBox(height: 5),
-              Divider(
-                color: Colors.white54,
-              ),
-              // Row(
-              //   children: <Widget>[
-              //     SizedBox(
-              //       width: 164,
-              //       child: Text(
-              //         '$hours:$minutes:$seconds', // TODO: '$hours:$minutes:$seconds',
-              //         style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 33),
-              //       ),
-              //     ),
-              //     const Expanded(
-              //       child: Text(
-              //         '남았습니다',
-              //         style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 33),
-              //       ),
-              //     )
-              //   ],
-              // ),
-              // SizedBox(height: 20),
-              //
-              if (route[subPathIndex+1]['trafficType'] == 1) ...[
-                // 다음 대중교통: 지하철
-                Text(
-                  '${route[1]["startName"]}역으로 이동 후',
-                  style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  '${route[subPathIndex+1]["lane"][0]["name"]} 탑승',
-                  style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
-                ),
-                SizedBox(height: 5),
-                Row(
-                  children: <Widget>[
-                    Text(
-                      '열차 도착까지 ',
-                      style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+              Align(
+                  alignment: Alignment.centerLeft,
+                  child: Row(children: [
+                    SizedBox(
+                      width: 10,
                     ),
                     SizedBox(
-                      width: 100,
-                      child: Text(
-                        '$hours:$minutes:$seconds', // TODO: '$hours:$minutes:$seconds',
+                      width: 30,
+                      child: _transportIcon(-1),
+                    ),
+                    SizedBox(
+                      width: 60,
+                      child: _transportName(-1),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    SizedBox(
+                      height: 20,
+                      child:
+                      Text(
+                        '${route[route.length - 1]["endName"]}',
                         style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
                       ),
                     ),
-                    const Expanded(
-                      child: Text(
-                        '남았습니다',
-                        style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
-                      ),
-                    )
-                  ],
-                ),
-              ] else if (route[subPathIndex+1]['trafficType'] == 2) ...[
-                // 다음 대중교통: 버스
-                Text(
-                  '${route[subPathIndex+1]["startName"]} 정류장 이동',
-                  style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  '${route[subPathIndex+1]["lane"][0]["busNo"]} 버스 탑승',
-                  style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
-                ),
-              ] else ...[
-                // 다음 대중교통: 택시
-                // TODO
-              ],
-              SizedBox(height: 5),
+                  ])),
               Divider(
                 color: Colors.white54,
               ),
+              SizedBox(height: 5),
+
+              if (subPathIndex+1 < route.length) ...[
+                if (route[subPathIndex+1]['trafficType'] == 1) ...[
+                  // 다음 대중교통: 지하철
+                  Text(
+                    '탑승 예정 열차 정보',
+                    style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                  ),
+                  SizedBox(height: 5),
+                  Divider(
+                    color: Colors.white54,
+                  ),
+                  Text(
+                    '${route[subPathIndex+1]["startName"]}역에서 ${route[subPathIndex+1]["lane"][0]["name"]} 탑승',
+                    style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    children: <Widget>[
+                      Text(
+                        '열차 도착까지 ',
+                        style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                      ),
+                      SizedBox(
+                        width: 100,
+                        child: Text(
+                          '$hours:$minutes:$seconds', // TODO: '$hours:$minutes:$seconds',
+                          style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                        ),
+                      ),
+                      const Expanded(
+                        child: Text(
+                          '남았습니다',
+                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                        ),
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 5),
+                  Divider(
+                    color: Colors.white54,
+                  ),
+                ]
+                else if (route[subPathIndex+1]['trafficType'] == 2) ...[
+                  // 다음 대중교통: 버스
+                  Text(
+                    '탑승 예정 버스 정보',
+                    style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                  ),
+                  SizedBox(height: 5),
+                  Divider(
+                    color: Colors.white54,
+                  ),
+                  Text(
+                    '${route[subPathIndex+1]["startName"]} 정류장에서 ${route[subPathIndex+1]["lane"][0]["busNo"]} 버스 탑승',
+                    style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    children: <Widget>[
+                      Text(
+                        '버스 도착까지 ',
+                        style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                      ),
+                      SizedBox(
+                        width: 100,
+                        child: Text(
+                          '$hours:$minutes:$seconds', // TODO: '$hours:$minutes:$seconds',
+                          style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                        ),
+                      ),
+                      const Expanded(
+                        child: Text(
+                          '남았습니다',
+                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                        ),
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 5),
+                  Divider(
+                    color: Colors.white54,
+                  ),
+                ]
+                else ...[
+                    // 다음 대중교통: 택시
+                    // TODO
+                  ]
+              ],
 
               SizedBox(height: 10),
 
@@ -296,9 +337,11 @@ class _WalkPage extends State<WalkPage> {
                 child: NaverMap(
                   onMapCreated: onMapCreated,
                   mapType: _mapType,
+                  locationButtonEnable: true,
+
                   markers: [
-                    Marker(markerId: 'start', position: LatLng(route[0]["startY"], route[0]["startX"]), width: 30, height: 40),
-                    Marker(markerId: 'end', position: LatLng(route[0]["endY"], route[0]["endX"]), width: 30, height: 40),
+                    Marker(markerId: 'start', position: LatLng(route[subPathIndex]["startY"], route[subPathIndex]["startX"]), width: 30, height: 40),
+                    Marker(markerId: 'end', position: LatLng(route[subPathIndex]["endY"], route[subPathIndex]["endX"]), width: 30, height: 40),
                   ],
                   pathOverlays: {
                     PathOverlay(
@@ -309,7 +352,7 @@ class _WalkPage extends State<WalkPage> {
                       outlineColor: Colors.white,
                     )
                   },
-                  initialCameraPosition: CameraPosition(target: LatLng((route[0]["startY"] + route[0]["endY"]) / 2, (route[0]["startX"] + route[0]["endX"]) / 2)),
+                  initialCameraPosition: CameraPosition(target: LatLng((route[subPathIndex]["startY"] + route[subPathIndex]["endY"]) / 2, (route[subPathIndex]["startX"] + route[subPathIndex]["endX"]) / 2)),
                 ),
               )),
 
@@ -360,6 +403,11 @@ class _WalkPage extends State<WalkPage> {
                         exBox.put('isGuiding', false);
                         exBox.put('subPathIndex', 0);
                         exBox.put('nextRouteType', 3);
+
+                        exBox.put('todayAlarm', false);
+                        exBox.put('todayWakeUpCheck', false);
+                        exBox.put('todayWakeUpHelp', false);
+
                         exBox.delete('route');
                       }
                       Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
@@ -378,65 +426,118 @@ class _WalkPage extends State<WalkPage> {
   }
 
   Icon _transportIcon(int index) {
-    int transportType = route[index]["trafficType"];
-    if (transportType == 1){
-      return Icon(Icons.directions_subway, color: TransportColors.subway[route[index]["lane"][0]["subwayCode"]]);
-    }else if (transportType == 2){
-      return Icon(Icons.directions_bus, color: TransportColors.bus[route[index]["lane"][0]["type"]]);
-    }else if (transportType == 3){
-      return const Icon(Icons.stop_outlined, color: Colors.white70);
-    }else if (transportType == 4){
-      return const Icon(Icons.stop_outlined, color: Colors.white70);
-    }else if (transportType == 5){
-      return const Icon(Icons.local_taxi, color: Colors.orangeAccent);
+    if (index > -1 && index < route.length) {
+      int transportType = route[index]["trafficType"];
+      if (transportType == 1) {
+        return Icon(Icons.directions_subway, color: TransportColors.subway[route[index]["lane"][0]["subwayCode"]]);
+      } else if (transportType == 2) {
+        return Icon(Icons.directions_bus, color: TransportColors.bus[route[index]["lane"][0]["type"]]);
+      } else if (transportType == 3) {
+        if (index == 0) {
+          return const Icon(Icons.directions_walk, color: Colors.white70);
+        }
+        return const Icon(Icons.stop_outlined, color: Colors.white70);
+      } else if (transportType == 4) {
+        return const Icon(Icons.stop_outlined, color: Colors.white70);
+      } else if (transportType == 5) {
+        return const Icon(Icons.local_taxi, color: Colors.orangeAccent);
+      }
     }
 
-    return const Icon(Icons.circle_outlined, color: Colors.white70);
+    return const Icon(Icons.directions_walk, color: Colors.white70);
   }
 
   Text _transportName(int index) {
-    int transportType = route[index]["trafficType"];
-    if (transportType == 1){
-      return Text('${route[index]["lane"][0]["name"]}', style: const TextStyle(
-        color: Colors.white,
-        fontSize: 10,
-        fontFamily: 'NanumSquareNeo',
-      ));
-    }else if (transportType == 2){
-      return Text('${route[index]["lane"][0]["busNo"]}' , style: const TextStyle(
-      color: Colors.white,
+    if (index > -1 && index < route.length) {
+
+      int transportType = route[index]["trafficType"];
+
+      if (transportType == 1){
+        return Text('${route[index]["lane"][0]["name"]}', style: const TextStyle(
+          color: Colors.white,
           fontSize: 10,
           fontFamily: 'NanumSquareNeo',
-      ));
-    }else if (transportType == 3){
-      return const Text('하차' , style: TextStyle(
-    color: Colors.white,
-    fontSize: 10,
-    fontFamily: 'NanumSquareNeo',
-    ));
-    }else if (transportType == 4){
-      return const Text('하차' , style: TextStyle(
-    color: Colors.white,
-    fontSize: 10,
-    fontFamily: 'NanumSquareNeo',
-    ));
-    }else if (transportType == 5){
-      return const Text('택시 승차' , style: TextStyle(
-    color: Colors.white,
-    fontSize: 10,
-    fontFamily: 'NanumSquareNeo',
-    ));
+        ));
+      }
+      else if (transportType == 2){
+        return Text('${route[index]["lane"][0]["busNo"]}' , style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontFamily: 'NanumSquareNeo',
+        ));
+      }
+      else if (transportType == 3){
+        if (index == 0){
+          return const Text('도보' , style: TextStyle(
+            color: Colors.white,
+            fontSize: 10,
+            fontFamily: 'NanumSquareNeo',
+          ));
+        }else{
+          return const Text('하차' , style: TextStyle(
+            color: Colors.white,
+            fontSize: 10,
+            fontFamily: 'NanumSquareNeo',
+          ));
+        }
+      }
+      else if (transportType == 4){
+        return const Text('하차' , style: TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontFamily: 'NanumSquareNeo',
+        ));
+      }
+      else if (transportType == 5){
+        return const Text('택시 승차' , style: TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontFamily: 'NanumSquareNeo',
+        ));
+      }
     }
 
-    return const Text('하차',  style: TextStyle(
+    return const Text('도보',  style: TextStyle(
       color: Colors.white,
       fontSize: 10,
       fontFamily: 'NanumSquareNeo',
     ));
   }
 
-// Future<String?> getBusLefted() async {
-// }
+  Future<void> findCurrentStation() async {
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
+    var _distanceInMeters = await Geolocator.distanceBetween(
+      route[subPathIndex]["endY"],
+      route[subPathIndex]["endX"],
+      position.latitude,
+      position.longitude,
+    );
+
+    if (_distanceInMeters < 10){
+
+      if (subPathIndex + 1 < route.length){
+        exBox.put('isGuiding', true);
+        exBox.put('subPathIndex', subPathIndex+1);
+        exBox.put('nextRouteType', route[subPathIndex+1]["trafficType"]);
+      }
+      else{
+        exBox.put('isGuiding', false);
+        exBox.put('subPathIndex', 0);
+        exBox.put('nextRouteType', 3);
+
+        exBox.put('todayAlarm', false);
+        exBox.put('todayWakeUpCheck', false);
+        exBox.put('todayWakeUpHelp', false);
+
+        exBox.delete('route');
+      }
+      Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()),);
+
+    }
+    return;
+  }
 }
 
 //   Future<String?> getJSONData() async {

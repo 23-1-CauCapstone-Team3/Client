@@ -722,7 +722,7 @@
             "name": "수도권 7호선",
             "subwayCode": 7,
             "subwayCityCode": 1000,
-            "departureTime": "2023-05-27T00:28:00"
+            "departureTime": "2023-05-28T00:28:00"
           }
         ],
         "startName": "이수",
@@ -837,7 +837,7 @@
             "busLocalBlID": "119900024",
             "busCityCode": 1000,
             "busProviderCode": 4,
-            "departureTime": "2023-05-27T00:42:00"
+            "departureTime": "2023-05-28T00:42:00"
           }
         ],
         "startName": "상도역1번출구",
