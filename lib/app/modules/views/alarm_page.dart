@@ -52,39 +52,6 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   Timer? _timer;
   late bool _flagTimer;   // Hive
 
-  void _loadState() {
-    setState(() {
-      destination = exBox.get('destination');
-      x = exBox.get('x');
-      y = exBox.get('y');
-
-
-      todayAlarm = exBox.get('todayAlarm', defaultValue: false);
-      todayWakeUpCheck = exBox.get('todayWakeUpCheck', defaultValue: false);
-      todayWakeUpHelp = exBox.get('todayWakeUpHelp', defaultValue: false);
-
-      departureTime = exBox.get('departureTime');
-      _flagTimer = exBox.get('_flagTimer');
-
-      route = exBox.get('route', defaultValue: []);
-    });
-  }
-
-  void _saveState() {
-    exBox.put('destination', destination);
-    exBox.put('x', x);
-    exBox.put('y', y);
-
-    exBox.put('todayAlarm', todayAlarm);
-    exBox.put('todayWakeUpCheck', todayWakeUpCheck);
-    exBox.put('todayWakeUpHelp', todayWakeUpHelp);
-
-    exBox.put('departureTime', departureTime);
-    exBox.put('_flagTimer', _flagTimer);
-
-    exBox.put('route', route);
-  }
-
   void _startTimer() {
     duration = departureTime.difference(DateTime.now());
 
@@ -227,6 +194,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   var exBox = Hive.box('box_name');
 
   late List route;  // Hive
+  late bool isGuiding = false; // Hive
 
   void _setRouteData(int value) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -264,6 +232,8 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
     departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(const Duration(minutes: 1)));
     duration = departureTime.difference(DateTime.now());
 
+    isGuiding = exBox.get('isGuiding', defaultValue: false);
+
     /// [S] 오늘 막차 알림 정보 가져오기
 
     if(todayAlarm == false){
@@ -285,12 +255,41 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    destination = exBox.get('destination', defaultValue: '');
+    x = exBox.get('x', defaultValue: '');
+    y = exBox.get('y', defaultValue: '');
+
+    todayAlarm = exBox.get('todayAlarm', defaultValue: false);
+
+    todayWakeUpCheck = exBox.get('todayWakeUpCheck', defaultValue: false);
+    todayWakeUpHelp = exBox.get('todayWakeUpCheck', defaultValue: false);
+
+    _flagTimer = false;
+
+    // route = [];
+    route = exBox.get('route', defaultValue: []);
+    departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(const Duration(minutes: 1)));
+    duration = departureTime.difference(DateTime.now());
+
+    isGuiding = exBox.get('isGuiding', defaultValue: false);
+
+    /// [S] 오늘 막차 알림 정보 가져오기
+
+    if(todayAlarm == false){
+      loadTodayAlarm();
+    }
+
+    if (todayAlarm) {
+      _startTimer();
+    }
+
+    /// [E] 오늘 막차 알림 정보 가져오기
+
+    /// 전체 알람 정보 가져오기
+    loadAlarms();
+
+    /// 전체 장소 정보 가져오기
+    loadLocations();
 
     String strDigits(int n) => n.toString().padLeft(2, '0');
     final hours = strDigits(duration.inHours.remainder(24));
@@ -317,7 +316,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
               SizedBox(height: 5),
 
               /// 알람이 있는 경우
-              if (todayAlarm) ...[
+              if (todayAlarm && !isGuiding) ...[
                 const Text(
                   '출발 시간까지',
                   style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 33),
@@ -346,7 +345,17 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                 ),
 
                 /// 오늘 알람이 없는 경우
-              ] else ...[
+              ]
+                else if (isGuiding) ...[
+                const Text(
+                  '막차 경로 안내',
+                  style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 40),
+                ),const Text(
+                  '진행 중 입니다.',
+                  style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 40),
+                ),
+                ]
+              else ...[
                 const Text(
                   '알림 없음',
                   style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 40),
@@ -947,8 +956,10 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                 onChanged: (bool? value) {
                   // This is called when the user toggles the switch.
                   setState(() {
-                    todayAlarm = value ?? false;
-                    exBox.put('todayAlarm', todayAlarm);
+                    if (!isGuiding){
+                      todayAlarm = value ?? false;
+                      exBox.put('todayAlarm', todayAlarm);
+                    }
                   });
                   if (todayAlarm) {
                     // route = exBox.get('route', defaultValue: []);

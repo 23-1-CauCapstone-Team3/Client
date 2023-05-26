@@ -145,17 +145,7 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              if (exBox.get('todayAlarm') == true) ... [
-
-                // const Text(
-                //   '출발 알림',
-                //   style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
-                // ),
-                // SizedBox(height: 5),
-                // Divider(
-                //   color: Colors.white54,
-                // ),
-                // SizedBox(height: 5),
+              if (exBox.get('todayAlarm') == true && exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours:24))).difference(DateTime.now()).compareTo(Duration(minutes: 20)) <= 0) ... [
                 Text(
                   '출발 시각까지',
                   style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 33),
