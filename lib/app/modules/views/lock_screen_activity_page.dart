@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:last_transport/app/modules/views/walk_page.dart';
 import 'package:naver_map_plugin/naver_map_plugin.dart';
 
 import '../../data/theme_data.dart';
@@ -112,6 +113,31 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
     final hours = strDigits(duration.inHours.remainder(24));
     final minutes = strDigits(duration.inMinutes.remainder(60));
     final seconds = strDigits(duration.inSeconds.remainder(60));
+
+
+    route = exBox.get('route', defaultValue: []);
+    departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(minutes: 30)));
+    duration = departureTime.difference(DateTime.now());
+
+    if(route.isNotEmpty){
+      route[0]["steps"].forEach((feature) {
+        if (feature["geometry"]["type"] == "Point") {
+          _coordinates.add(LatLng(feature["geometry"]["coordinates"][1], feature["geometry"]["coordinates"][0]));
+        } else {
+          feature["geometry"]["coordinates"].forEach((point) {
+            _coordinates.add(LatLng(point[1], point[0]));
+          });
+        }
+      });
+
+      _coordinates.forEach((point) {
+        _markers.add(Marker(
+          markerId: point.json.toString(),
+          position: point,
+          onMarkerTab: _onMarkerTap,
+        ));
+      });
+    }
 
     return Scaffold(
         backgroundColor: CustomColors.pageBackgroundColor,
@@ -242,6 +268,10 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
                             exBox.put('todayWakeUpCheck', false);
                             exBox.put('todayWakeUpHelp', false);
 
+                            exBox.put('isGuiding', false);
+                            exBox.put('subPathIndex', 0);
+                            exBox.put('nextRouteType', 3);
+
                             exBox.delete('route');
 
                             Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
@@ -258,7 +288,13 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
                                 fontSize: 20, fontFamily: 'NanumSquareNeo',
                               )
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            exBox.put('isGuiding', true);
+                            exBox.put('subPathIndex', 0);
+                            exBox.put('nextRouteType', route[0]["trafficType"]);
+                            Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => Home()),);
+                          },
                           child: Text('안내 시작')),
                     ])
               ]

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:last_transport/app/data/theme_data.dart';
 import 'current_route_page.dart';
 import 'alarm_page.dart';
@@ -12,6 +13,9 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  var exBox = Hive.box('box_name');
+
   int _selectedIndex = 1;
 
   final List<Widget> pages = <Widget>[const CurrentRoutePage(), const AlarmPage(), const MyLocationPage()];
@@ -26,7 +30,20 @@ class _HomeState extends State<Home> {
     });
   }
 
-  final pageController = PageController(initialPage: 1);
+  late final pageController;
+
+  @override
+  void initState() {
+    if (exBox.get("isGuiding", defaultValue: false)){
+      _selectedIndex = 0;
+      pageController = PageController(initialPage: 0);
+    }
+    else{
+      _selectedIndex = 1;
+      pageController = PageController(initialPage: 1);
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

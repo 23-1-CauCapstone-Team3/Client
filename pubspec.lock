@@ -440,11 +440,12 @@ packages:
   naver_map_plugin:
     dependency: "direct main"
     description:
-      name: naver_map_plugin
-      sha256: fb5443bec21585a82a3bc88f6bb53561672a3178a5cdd2ea772c35c8b80b35a6
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.6"
+      path: "."
+      ref: HEAD
+      resolved-ref: d6029c020e13c926ff5f94b445b4f65abb48b85f
+      url: "https://github.com/LBSTECH/naver_map_plugin.git"
+    source: git
+    version: "0.9.7"
   nested:
     dependency: transitive
     description:

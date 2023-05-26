@@ -17,6 +17,50 @@ class CustomColors {
   static Color hourHandEndColor = Color(0xFFEA74AB);
 }
 
+class TransportColors {
+  static List<Color> subway = [
+    Color(0xFF000000),
+    Color(0xFF0052A4),
+    Color(0xFF00A84D),
+    Color(0xFFEF7C1C),
+    Color(0xFF00A5DE),
+    Color(0xFF996CAC),
+    Color(0xFFCD7C2F),
+    Color(0xFF747F00),
+    Color(0xFFE6186C),
+    Color(0xFFBDB092),
+  ];
+  static List<Color> bus = [
+    Color(0xFF000000),
+    Color(0xFF33CC99),
+    Color(0xFF0068b7),
+    Color(0xFF53b332),
+    Color(0xFFe60012),
+    Color(0xFF00a0e9),
+    Color(0xFFe60012),
+    Color(0xFF000000),
+    Color(0xFF000000),
+    Color(0xFF000000),
+    Color(0xFFfe5b10),
+    Color(0xFF0068b7),
+    Color(0xFF53b332),
+    Color(0xFFf2b70a),
+    Color(0xFFe60012),
+    Color(0xFF006896),
+    Color(0xFFFFFFFF),
+    Color(0xFF000000),
+    Color(0xFF000000),
+    Color(0xFF000000),
+    Color(0xFFFFFFFF),
+    Color(0xFF000000),
+    Color(0xFFFFFFFF),
+    Color(0xFF000000),
+    Color(0xFF000000),
+    Color(0xFF000000),
+    Color(0xFFFFFFFF),
+  ];
+}
+
 class GradientColors {
   final List<Color> colors;
   GradientColors(this.colors);

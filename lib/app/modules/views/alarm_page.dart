@@ -52,6 +52,39 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   Timer? _timer;
   late bool _flagTimer;   // Hive
 
+  void _loadState() {
+    setState(() {
+      destination = exBox.get('destination');
+      x = exBox.get('x');
+      y = exBox.get('y');
+
+
+      todayAlarm = exBox.get('todayAlarm', defaultValue: false);
+      todayWakeUpCheck = exBox.get('todayWakeUpCheck', defaultValue: false);
+      todayWakeUpHelp = exBox.get('todayWakeUpHelp', defaultValue: false);
+
+      departureTime = exBox.get('departureTime');
+      _flagTimer = exBox.get('_flagTimer');
+
+      route = exBox.get('route', defaultValue: []);
+    });
+  }
+
+  void _saveState() {
+    exBox.put('destination', destination);
+    exBox.put('x', x);
+    exBox.put('y', y);
+
+    exBox.put('todayAlarm', todayAlarm);
+    exBox.put('todayWakeUpCheck', todayWakeUpCheck);
+    exBox.put('todayWakeUpHelp', todayWakeUpHelp);
+
+    exBox.put('departureTime', departureTime);
+    exBox.put('_flagTimer', _flagTimer);
+
+    exBox.put('route', route);
+  }
+
   void _startTimer() {
     duration = departureTime.difference(DateTime.now());
 
