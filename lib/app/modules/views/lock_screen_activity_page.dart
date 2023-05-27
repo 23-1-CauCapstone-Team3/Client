@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -154,7 +155,7 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
           child: SingleChildScrollView(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              if (exBox.get('todayAlarm') == true && exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours:24))).difference(DateTime.now()).compareTo(Duration(minutes: 20)) > 0) ... [
+              if (exBox.get('todayAlarm') == true && exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours:24))).difference(DateTime.now()).compareTo(Duration(minutes: 20)) < 0) ... [
                 Text(
                   '출발 시각까지',
                   style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 33),
@@ -359,7 +360,7 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
           var dataConvertedToJSON = json.decode(response);
           departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
           duration = departureTime.difference(DateTime.now());
-          if (duration.inSeconds < 0) {
+          if (duration.inSeconds > 0) {
             // TODO: set _setDepartureTimeData
             List result = dataConvertedToJSON["pathInfo"]["subPath"];
             route.addAll(result);

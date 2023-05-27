@@ -611,7 +611,7 @@ class _WalkPage extends State<WalkPage> {
           var dataConvertedToJSON = json.decode(response);
           departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
           duration = departureTime.difference(DateTime.now());
-          if (duration.inSeconds < 0) {
+          if (duration.inSeconds > 0) {
             // TODO: set _setDepartureTimeData
             List result = dataConvertedToJSON["pathInfo"]["subPath"];
             route.addAll(result);
