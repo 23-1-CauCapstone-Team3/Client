@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
@@ -35,9 +38,15 @@ class _BusPage extends State<BusPage> {
   void _startTimer() {
     duration = departureTime.difference(DateTime.now());
 
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      _setCountDown();
-    });
+    if (duration.inSeconds > 0) {
+      _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+        _setCountDown();
+      });
+    }else{
+      setState(() {
+        duration = const Duration(seconds: 0);
+      });
+    }
   }
 
   void _stopTimer() {
@@ -82,10 +91,17 @@ class _BusPage extends State<BusPage> {
       departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(route[subPathIndex + 2]["lane"][0]["departureTime"]);
       duration = departureTime.difference(DateTime.now());
 
-      _startTimer();
+      if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
+
     } else {
       departureTime = DateTime.now();
       duration = departureTime.difference(DateTime.now());
+
+      if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
+    }
+
+    if (duration.inSeconds > 0) {
+      _startTimer();
     }
   }
 
@@ -567,7 +583,38 @@ class _BusPage extends State<BusPage> {
                         );
                       },
                       child: Text('다음 경로')),
-                ])
+                ]),
+                SizedBox(
+                  height: 20,
+                ),
+                Center(
+                  child:
+                  ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber[800],
+                          fixedSize: Size(200, 50),
+                          textStyle: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20, fontFamily: 'NanumSquareNeo',
+                          )
+                      ),
+                      onPressed: () {
+                        getJSONData().then((value) {
+                          route = exBox.get('route', defaultValue: []);
+                          departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours: 24)));
+                          duration = departureTime.difference(DateTime.now());
+                          if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
+
+                          exBox.put('isGuiding', true);
+                          exBox.put('subPathIndex', 0);
+                          exBox.put('nextRouteType', route[0]["trafficType"]);
+                          Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => Home()),);
+                        });
+
+                      },
+                      child: Text('택시 경로 안내')),
+                )
               ],
             ))));
   }
@@ -665,12 +712,6 @@ class _BusPage extends State<BusPage> {
 
       if (lat && lon) {
 
-        // print("$i th lat: $lat, value: ${stations[i]["y"]}");
-        // print("$i th lat: $lon, value: ${stations[i]["x"]}");
-        //
-        // print("lat: $lat, value: ${position.latitude}");
-        // print("lat: $lon, value: ${position.longitude}");
-
         currentStation = i;
 
         return;
@@ -698,32 +739,49 @@ class _BusPage extends State<BusPage> {
 
     return;
   }
-}
 
-//   Future<String?> getJSONData() async {
-//
-//     // TODO: Get data from server!
-//     var url = 'http://ws.bus.go.kr/api/rest/arrive/getArrInfoByRoute?serviceKey=	LS3h90y1uDhV90A73H17ZV%2FSv4W557ZwgHs9A3tFBeeuTqHF1ZX4R%2BNeo2%2FC4kjN6AwzRacIx%2FafR7%2FILwPNDw%3D%3D&stId=&busRouteId=&ord=';
-//     // var response = await http.get(Uri.parse(url), headers: {"Authorization": ""});
-//
-//     // var response = await rootBundle.loadString('json/response.json');
-//
-//     var response = await rootBundle.loadString('assets/json/response.json').then((response) {
-//       setState(() {
-//         route.clear();
-//         // var dataConvertedToJSON = json.decode(response.body);
-//         var dataConvertedToJSON = json.decode(response);
-//         departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
-//         duration = departureTime.difference(DateTime.now());
-//         // TODO: set _setDepartureTimeData
-//         List result = dataConvertedToJSON["pathInfo"]["subPath"];
-//         route.addAll(result);
-//         exBox.put('route', route);  // TODO: test hive
-//         exBox.put('departureTime', departureTime);
-//       });
-//
-//     });
-//
-//     // return response.body;
-//     return response;
-// }
+
+  Future<Position?> getLocation() async {
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
+    return position;
+  }
+
+  Future<String?> getJSONData() async {
+
+    Future<Position?> position = getLocation();
+    if (mounted) setState(() {});
+    position?.then((data) async {
+
+      // TODO: Get data from server!
+      // var url = 'http://도메인주소/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+      // var response = await http.get(Uri.parse(url), headers: {"Authorization": ""});
+
+      // var response = await rootBundle.loadString('json/response.json');
+
+      var response = await rootBundle.loadString('assets/json/response_taxi.json').then((response) {
+        setState(() {
+          route.clear();
+          // var dataConvertedToJSON = json.decode(response.body);
+          var dataConvertedToJSON = json.decode(response);
+          departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
+          duration = departureTime.difference(DateTime.now());
+          if (duration.inSeconds < 0) {
+            // TODO: set _setDepartureTimeData
+            List result = dataConvertedToJSON["pathInfo"]["subPath"];
+            route.addAll(result);
+            exBox.put('route', route);  // TODO: test hive
+          }else{
+            duration = const Duration(seconds: 0);
+          }
+        });
+
+      });
+
+      // return response.body;
+      return response;
+    });
+
+    return "";
+  }
+}

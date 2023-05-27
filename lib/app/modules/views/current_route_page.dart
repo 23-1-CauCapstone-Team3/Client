@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:last_transport/app/modules/views/lock_screen_activity_page.dart';
 import 'package:last_transport/app/modules/views/subway_page.dart';
+import 'package:last_transport/app/modules/views/taxi_page.dart';
 import 'package:last_transport/app/modules/views/walk_page.dart';
 
 import '../../data/theme_data.dart';
@@ -53,16 +54,14 @@ class _CurrentRoutePageState extends State<CurrentRoutePage> with AutomaticKeepA
         // print(nextRouteType);
         page = WalkPage();
       } else if (nextRouteType == 5) {
-        // page = TexiPage();
-        // print(nextRouteType);
-        page = LockScreenActivityPage();
+        page = TaxiPage();
       } else {
         // print(nextRouteType);
         page = LockScreenActivityPage();
       }
     }
     else {
-      // print('else');
+      print('else');
       page = LockScreenActivityPage();
     }
     super.initState();

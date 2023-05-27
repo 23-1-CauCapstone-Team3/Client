@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 import 'package:naver_map_plugin/naver_map_plugin.dart';
 
 import '../../data/theme_data.dart';
@@ -52,7 +56,7 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
 
   void _stopTimer() {
     setState(() {
-      _timer!.cancel();
+      _timer?.cancel();
     });
   }
 
@@ -62,7 +66,7 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
       final seconds = duration.inSeconds - reduceSecondsBy;
       if (seconds - 1 < 0) {
         duration = const Duration(seconds: 0);
-        _timer!.cancel();
+        _timer?.cancel();
       } else {
         duration = Duration(seconds: seconds);
       }
@@ -79,8 +83,10 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
   void initState() {
     super.initState();
     route = exBox.get('route', defaultValue: []);
-    departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(minutes: 30)));
+    departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours: 24)));
     duration = departureTime.difference(DateTime.now());
+
+    if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
 
     if(route.isNotEmpty){
       route[0]["steps"].forEach((feature) {
@@ -102,16 +108,19 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
       });
     }
 
-
-    _startTimer();
+    if (duration.inSeconds > 0) {
+      _startTimer();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
 
     route = exBox.get('route', defaultValue: []);
-    departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(minutes: 30)));
+    departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours: 24)));
     duration = departureTime.difference(DateTime.now());
+
+    if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
 
     if(route.isNotEmpty && _coordinates.isEmpty && _markers.isEmpty){
       route[0]["steps"].forEach((feature) {
@@ -142,10 +151,10 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
         backgroundColor: CustomColors.pageBackgroundColor,
         body: Container(
           padding: const EdgeInsets.fromLTRB(15, 50, 15, 0),
-          child: Column(
+          child: SingleChildScrollView(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              if (exBox.get('todayAlarm') == true && exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours:24))).difference(DateTime.now()).compareTo(Duration(minutes: 20)) <= 0) ... [
+              if (exBox.get('todayAlarm') == true && exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours:24))).difference(DateTime.now()).compareTo(Duration(minutes: 20)) > 0) ... [
                 Text(
                   '출발 시각까지',
                   style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 33),
@@ -288,8 +297,34 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
                           child: Text('안내 시작')),
                     ])
               ]
+              else if (exBox.get('todayAlarm') == false && !exBox.get('departureTime', defaultValue: DateTime.now().add(const Duration(hours: -4))).isAfter(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 4, 0, 0)))
+                ...[
+                Center(
+                  child:
+                  ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber[800],
+                          fixedSize: Size(200, 50),
+                          textStyle: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20, fontFamily: 'NanumSquareNeo',
+                          )
+                      ),
+                      onPressed: () {
+                        getJSONData().then((value) {
+                          exBox.put('isGuiding', true);
+                          exBox.put('subPathIndex', 0);
+                          exBox.put('nextRouteType', route[0]["trafficType"]);
+                          Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => Home()),);
+                        });
+
+                      },
+                      child: Text('택시 경로 안내')),
+                )
+              ]
             ],
-          ),
+          )),
         ));
   }
 
@@ -299,4 +334,47 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
     _controller.complete(controller);
   }
 
+  Future<Position?> getLocation() async {
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
+    return position;
+  }
+
+  Future<String?> getJSONData() async {
+
+    Future<Position?> position = getLocation();
+    if (mounted) setState(() {});
+    position?.then((data) async {
+
+      // TODO: Get data from server!
+      // var url = 'http://도메인주소/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+      // var response = await http.get(Uri.parse(url), headers: {"Authorization": ""});
+
+      // var response = await rootBundle.loadString('json/response.json');
+
+      var response = await rootBundle.loadString('assets/json/response_taxi.json').then((response) {
+        setState(() {
+          route.clear();
+          // var dataConvertedToJSON = json.decode(response.body);
+          var dataConvertedToJSON = json.decode(response);
+          departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
+          duration = departureTime.difference(DateTime.now());
+          if (duration.inSeconds < 0) {
+            // TODO: set _setDepartureTimeData
+            List result = dataConvertedToJSON["pathInfo"]["subPath"];
+            route.addAll(result);
+            exBox.put('route', route);  // TODO: test hive
+          }else{
+            duration = const Duration(seconds: 0);
+          }
+        });
+
+      });
+
+      // return response.body;
+      return response;
+    });
+
+    return "";
+  }
 }

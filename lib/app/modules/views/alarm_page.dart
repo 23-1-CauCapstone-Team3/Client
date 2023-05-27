@@ -51,11 +51,12 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   late Duration duration;
   Timer? _timer;
   late bool _flagTimer;   // Hive
+  late bool _flagTodayAlarm = false;
 
   void _startTimer() {
     duration = departureTime.difference(DateTime.now());
 
-    if (_flagTimer == false) {
+    if (_flagTimer == false && duration.inSeconds > 0) {
       setState(() => _flagTimer = true);
       _timer = Timer.periodic(Duration(seconds: 1), (timer) {
         _setCountDown();
@@ -65,7 +66,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
 
   void _stopTimer() {
     setState(() {
-      _timer!.cancel();
+      _timer?.cancel();
       _flagTimer = false;  //TODO: 어떻게 timer를 잘 취소시킬 수 있을까...
     });
   }
@@ -76,8 +77,10 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
       final seconds = duration.inSeconds - reduceSecondsBy;
       if (seconds - 1 < 0) {
         duration = const Duration(seconds: 0);
-        _timer!.cancel();
+        _timer?.cancel();
         deleteDateAlarm(departureTime);
+        todayAlarm = false;
+        exBox.put('todayAlarm', false);
         // todayAlarm = false;
         // exBox.put('todayAlarm', todayAlarm);
       } else {
@@ -227,10 +230,16 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
 
     _flagTimer = false;
 
+    if(todayAlarm){
+      getJSONData();
+    }
+
     // route = [];
     route = exBox.get('route', defaultValue: []);
-    departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(const Duration(minutes: 1)));
+    departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours: 24)));
     duration = departureTime.difference(DateTime.now());
+
+    if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
 
     isGuiding = exBox.get('isGuiding', defaultValue: false);
 
@@ -240,7 +249,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
       loadTodayAlarm();
     }
 
-    if (todayAlarm) {
+    if (duration.inSeconds > 0 && todayAlarm) {
       _startTimer();
     }
 
@@ -266,22 +275,20 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
 
     _flagTimer = false;
 
+    if(todayAlarm){
+      getJSONData();
+    }
+
     // route = [];
     route = exBox.get('route', defaultValue: []);
-    departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(const Duration(minutes: 1)));
+    departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours: 24)));
     duration = departureTime.difference(DateTime.now());
+
+    if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
 
     isGuiding = exBox.get('isGuiding', defaultValue: false);
 
     /// [S] 오늘 막차 알림 정보 가져오기
-
-    if(todayAlarm == false){
-      loadTodayAlarm();
-    }
-
-    if (todayAlarm) {
-      _startTimer();
-    }
 
     /// [E] 오늘 막차 알림 정보 가져오기
 
@@ -956,27 +963,18 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                 onChanged: (bool? value) {
                   // This is called when the user toggles the switch.
                   setState(() {
-                    if (!isGuiding){
+                    if (!isGuiding) {
+                      _flagTodayAlarm = todayAlarm;
                       todayAlarm = value ?? false;
+                      if (!_flagTodayAlarm && todayAlarm) {
+                        getJSONData();
+                        _startTimer();
+                      }
                       exBox.put('todayAlarm', todayAlarm);
                     }
-                  });
-                  if (todayAlarm) {
-                    // route = exBox.get('route', defaultValue: []);
-                    // departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(minutes: 2)));
-                    // if (route.isEmpty){
-                      getJSONData().then((value) {
-                        route = exBox.get('route', defaultValue: []);
-                        departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(minutes: 3)));
-                        _startTimer();
-                      });
-                    // }else{
-                    //   _startTimer();
-                    //   // print(route);
-                    // }
-                  } else {
+                  else {
                     _stopTimer();
-                  }
+                  }});
                 },
               ),
             ]),
@@ -1153,11 +1151,14 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
           var dataConvertedToJSON = json.decode(response);
           departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
           duration = departureTime.difference(DateTime.now());
-          // TODO: set _setDepartureTimeData
-          List result = dataConvertedToJSON["pathInfo"]["subPath"];
-          route.addAll(result);
-          exBox.put('route', route);  // TODO: test hive
-          exBox.put('departureTime', departureTime);
+
+          if (duration.inSeconds >= 0) {
+            // TODO: set _setDepartureTimeData
+            List result = dataConvertedToJSON["pathInfo"]["subPath"];
+            route.addAll(result);
+            exBox.put('route', route); // TODO: test hive
+            exBox.put('departureTime', departureTime);
+          }
         });
 
       });

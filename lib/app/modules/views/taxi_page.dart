@@ -11,14 +11,14 @@ import 'package:intl/intl.dart';
 import '../../data/theme_data.dart';
 import 'home.dart';
 
-class SubwayPage extends StatefulWidget {
-  const SubwayPage({Key? key}) : super(key: key);
+class TaxiPage extends StatefulWidget {
+  const TaxiPage({Key? key}) : super(key: key);
 
   @override
-  _SubwayPage createState() => _SubwayPage();
+  _TaxiPage createState() => _TaxiPage();
 }
 
-class _SubwayPage extends State<SubwayPage> {
+class _TaxiPage extends State<TaxiPage> {
   var exBox = Hive.box('box_name');
 
   late List route = []; // Hive
@@ -30,10 +30,6 @@ class _SubwayPage extends State<SubwayPage> {
   late int currentRouteType = 3; // Hive
 
   late int currentStation = 0; // TODO
-  late List stations = [];
-
-  late double currentLongitude = 0.0;
-  late double currentLatitude = 0.0;
 
   void _startTimer() {
     duration = departureTime.difference(DateTime.now());
@@ -82,8 +78,6 @@ class _SubwayPage extends State<SubwayPage> {
 
     subPathIndex = exBox.get('subPathIndex', defaultValue: 0);
     currentRouteType = exBox.get('nextRouteType', defaultValue: 3);
-
-    stations = route[subPathIndex]["passStopList"]["stations"];
 
     findCurrentStation();
 
@@ -185,8 +179,7 @@ class _SubwayPage extends State<SubwayPage> {
                       ),
                       SizedBox(
                         height: 20,
-                        child:
-                        Text(
+                        child: Text(
                           '${route[route.length - 1]["endName"]}',
                           style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
                         ),
@@ -237,8 +230,7 @@ class _SubwayPage extends State<SubwayPage> {
                     Divider(
                       color: Colors.white54,
                     ),
-                  ]
-                  else if (route[subPathIndex + 2]['trafficType'] == 2) ...[
+                  ] else if (route[subPathIndex + 2]['trafficType'] == 2) ...[
                     // 다음 대중교통: 버스
                     Text(
                       '탑승 예정 버스 정보',
@@ -277,8 +269,7 @@ class _SubwayPage extends State<SubwayPage> {
                     Divider(
                       color: Colors.white54,
                     ),
-                  ]
-                  else ...[
+                  ] else ...[
                     // 다음 대중교통: 택시
                     // TODO
                   ],
@@ -291,14 +282,14 @@ class _SubwayPage extends State<SubwayPage> {
                         SizedBox(
                           width: 10,
                         ),
-                        Icon(Icons.radio_button_unchecked, color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]]),
+                        Icon(Icons.radio_button_unchecked, color: Colors.amber[800]),
                         SizedBox(
                           width: 5,
                         ),
                         SizedBox(
                           height: 20,
                           child: Text(
-                            '${stations[currentStation]["stationName"]}',
+                            '${route[subPathIndex]["startName"]}',
                             style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
                           ),
                         ),
@@ -307,11 +298,7 @@ class _SubwayPage extends State<SubwayPage> {
                         SizedBox(
                           width: 20,
                         ),
-                        Container(
-                          width: 2,
-                          height: 10,
-                          color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]],
-                        ),
+                        Container(width: 2, height: 10, color: Colors.amber[800]),
                       ]),
                       SizedBox(
                         height: 0,
@@ -319,18 +306,14 @@ class _SubwayPage extends State<SubwayPage> {
                           SizedBox(
                             width: 9,
                           ),
-                          Icon(Icons.arrow_drop_down, color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]]),
+                          Icon(Icons.arrow_drop_down, color: Colors.amber[800]),
                         ]),
                       ),
                       Row(children: [
                         SizedBox(
                           width: 20,
                         ),
-                        Container(
-                          width: 2,
-                          height: 10,
-                          color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]],
-                        ),
+                        Container(width: 2, height: 10, color: Colors.amber[800]),
                       ]),
                       SizedBox(
                         height: 0,
@@ -338,18 +321,14 @@ class _SubwayPage extends State<SubwayPage> {
                           SizedBox(
                             width: 9,
                           ),
-                          Icon(Icons.arrow_drop_down, color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]]),
+                          Icon(Icons.arrow_drop_down, color: Colors.amber[800]),
                         ]),
                       ),
                       Row(children: [
                         SizedBox(
                           width: 20,
                         ),
-                        Container(
-                          width: 2,
-                          height: 10,
-                          color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]],
-                        ),
+                        Container(width: 2, height: 10, color: Colors.amber[800]),
                       ]),
                       SizedBox(
                         height: 0,
@@ -357,146 +336,16 @@ class _SubwayPage extends State<SubwayPage> {
                           SizedBox(
                             width: 9,
                           ),
-                          Icon(Icons.arrow_drop_down, color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]]),
+                          Icon(Icons.arrow_drop_down, color: Colors.amber[800]),
                         ]),
                       ),
                       Row(children: [
                         SizedBox(
                           width: 20,
                         ),
-                        Container(
-                          width: 2,
-                          height: 15,
-                          color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]],
-                        ),
-                      ]),Row(children: [
-                        SizedBox(
-                          width: 20,
-                        ),
-                        Container(
-                          width: 2,
-                          height: 15,
-                          color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]],
-                        ),
+                        Container(width: 2, height: 15, color: Colors.amber[800]),
                       ]),
-                      if (route[subPathIndex]["stationCount"] - currentStation > 1) ...[ Row(children: [
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Icon(Icons.radio_button_unchecked, color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]]),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        SizedBox(
-                          height: 20,
-                          child: Text(
-                            '${stations[currentStation+1]["stationName"]}',
-                            style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
-                          ),
-                        ),
-                      ])],
-                      Row(children: [
-                        SizedBox(
-                          width: 20,
-                        ),
-                        Container(
-                          width: 2,
-                          height: 20,
-                          color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]],
-                        ),
-                      ])
                     ])),
-                if (route[subPathIndex]["stationCount"] - currentStation > 3) ...[
-                  ExpansionTile(
-                      title: Row(children: [
-                        SizedBox(
-                          width: 4,
-                        ),
-                        Container(
-                          width: 2,
-                          height: 50,
-                          color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]],
-                        ),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        Text('${route[subPathIndex]["stationCount"] - currentStation - 2}개 역 이동',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 15,
-                              fontFamily: 'NanumSquareNeo',
-                            ))
-                      ]),
-                      initiallyExpanded: false,
-                      maintainState: true,
-                      backgroundColor: CustomColors.pageBackgroundColor,
-                      children: <Widget>[
-                        SizedBox(
-                          // height: 200,
-                          width: 380,
-                          child: ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            scrollDirection: Axis.vertical,
-                            shrinkWrap: true,
-                            padding: const EdgeInsets.only(top: 0),
-                            itemCount: stations.length - currentStation - 3,
-                            itemBuilder: (context, index) {
-                              return Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Column(children: [
-                                    Row(children: [
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Icon(Icons.radio_button_unchecked, color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]]),
-                                      SizedBox(
-                                        width: 5,
-                                      ),
-                                      SizedBox(
-                                        height: 20,
-                                        child: Text(
-                                          '${stations[index + 2 + currentStation]["stationName"]}',
-                                          style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
-                                        ),
-                                      ),
-                                    ]),
-                                    Row(children: [
-                                      SizedBox(
-                                        width: 20,
-                                      ),
-                                      Container(
-                                        width: 2,
-                                        height: 10,
-                                        color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]],
-                                      ),
-                                    ])
-                                  ]));
-                            },
-                          ),
-                        ),
-                        Row(children: [
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Container(
-                            width: 2,
-                            height: 20,
-                            color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]],
-                          ),
-                        ]),
-                        Row(children: [
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Container(
-                            width: 2,
-                            height: 20,
-                            color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]],
-                          ),
-                        ]),
-                      ])
-                ],
-
                 Row(children: [
                   SizedBox(
                     width: 20,
@@ -504,21 +353,21 @@ class _SubwayPage extends State<SubwayPage> {
                   Container(
                     width: 2,
                     height: 20,
-                    color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]],
+                    color: Colors.amber[800],
                   ),
                 ]),
                 Row(children: [
                   SizedBox(
                     width: 10,
                   ),
-                  Icon(Icons.radio_button_unchecked, color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]]),
+                  Icon(Icons.radio_button_unchecked, color: Colors.amber[800]),
                   SizedBox(
                     width: 5,
                   ),
                   SizedBox(
                     height: 20,
                     child: Text(
-                      '${stations[route[subPathIndex]["stationCount"]]["stationName"]} 하차',
+                      '${route[subPathIndex]["endName"]} 하차',
                       style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
                     ),
                   ),
@@ -640,89 +489,74 @@ class _SubwayPage extends State<SubwayPage> {
 
   Text _transportName(int index) {
     if (index > -1 && index < route.length) {
-
       int transportType = route[index]["trafficType"];
 
-      if (transportType == 1){
-        return Text('${route[index]["lane"][0]["name"]}', style: const TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontFamily: 'NanumSquareNeo',
-        ));
-      }
-      else if (transportType == 2){
-        return Text('${route[index]["lane"][0]["busNo"]}' , style: const TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontFamily: 'NanumSquareNeo',
-        ));
-      }
-      else if (transportType == 3){
-        if (index == 0){
-          return const Text('도보' , style: TextStyle(
-            color: Colors.white,
-            fontSize: 10,
-            fontFamily: 'NanumSquareNeo',
-          ));
-        }else{
-          return const Text('하차' , style: TextStyle(
-            color: Colors.white,
-            fontSize: 10,
-            fontFamily: 'NanumSquareNeo',
-          ));
+      if (transportType == 1) {
+        return Text('${route[index]["lane"][0]["name"]}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontFamily: 'NanumSquareNeo',
+            ));
+      } else if (transportType == 2) {
+        return Text('${route[index]["lane"][0]["busNo"]}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontFamily: 'NanumSquareNeo',
+            ));
+      } else if (transportType == 3) {
+        if (index == 0) {
+          return const Text('도보',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontFamily: 'NanumSquareNeo',
+              ));
+        } else {
+          return const Text('하차',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontFamily: 'NanumSquareNeo',
+              ));
         }
-      }
-      else if (transportType == 4){
-        return const Text('하차' , style: TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontFamily: 'NanumSquareNeo',
-        ));
-      }
-      else if (transportType == 5){
-        return const Text('택시 승차' , style: TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontFamily: 'NanumSquareNeo',
-        ));
+      } else if (transportType == 4) {
+        return const Text('하차',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontFamily: 'NanumSquareNeo',
+            ));
+      } else if (transportType == 5) {
+        return const Text('택시 승차',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontFamily: 'NanumSquareNeo',
+            ));
       }
     }
 
-    return const Text('도보',  style: TextStyle(
-      color: Colors.white,
-      fontSize: 10,
-      fontFamily: 'NanumSquareNeo',
-    ));
+    return const Text('도보',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontFamily: 'NanumSquareNeo',
+        ));
   }
 
   Future<void> findCurrentStation() async {
     Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
-    int stationCount = route[subPathIndex]["stationCount"];
-
-    for (int i = 0; i < stationCount; i++) {
-      bool lat = (position.latitude <= double.parse(stations[i]["y"]) && position.latitude > double.parse(stations[i + 1]["y"])) || (position.latitude < double.parse(stations[i + 1]["y"]) && position.latitude >= double.parse
-        (stations[i]["y"]));
-      bool lon = (position.longitude <= double.parse(stations[i]["x"]) && position.longitude > double.parse(stations[i + 1]["x"])) || (position.longitude < double.parse(stations[i + 1]["x"]) && position.longitude >= double.parse
-        (stations[i]["x"]));
-
-
-      if (lat && lon) {
-
-        currentStation = i;
-
-        return;
-      }
-    }
-
     var _distanceInMeters = await Geolocator.distanceBetween(
-        double.parse(stations[route[subPathIndex]["stationCount"]]["y"]),
-      double.parse(stations[route[subPathIndex]["stationCount"]]["x"]),
+      double.parse(route[subPathIndex]["endY"]["y"]),
+      double.parse(route[subPathIndex]["endX"]["x"]),
       position.latitude,
       position.longitude,
     );
 
-    if (_distanceInMeters < 200){
+    if (_distanceInMeters < 10) {
       exBox.put('isGuiding', true);
       exBox.put('subPathIndex', subPathIndex + 1);
       exBox.put('nextRouteType', route[subPathIndex + 1]["trafficType"]);
@@ -744,11 +578,9 @@ class _SubwayPage extends State<SubwayPage> {
   }
 
   Future<String?> getJSONData() async {
-
     Future<Position?> position = getLocation();
     if (mounted) setState(() {});
     position?.then((data) async {
-
       // TODO: Get data from server!
       // var url = 'http://도메인주소/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
       // var response = await http.get(Uri.parse(url), headers: {"Authorization": ""});
@@ -771,7 +603,6 @@ class _SubwayPage extends State<SubwayPage> {
             duration = const Duration(seconds: 0);
           }
         });
-
       });
 
       // return response.body;
