@@ -155,7 +155,7 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
           child: SingleChildScrollView(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              if (exBox.get('todayAlarm') == true && exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours:24))).difference(DateTime.now()).compareTo(Duration(minutes: 20)) < 0) ... [
+              if (exBox.get('todayAlarm') == true && exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours:24))).difference(DateTime.now()).compareTo(Duration(minutes: 20)) < 0 && route.isNotEmpty) ... [
                 Text(
                   '출발 시각까지',
                   style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 33),
@@ -298,8 +298,7 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
                           child: Text('안내 시작')),
                     ])
               ]
-              else if (exBox.get('todayAlarm') == false && !exBox.get('departureTime', defaultValue: DateTime.now().add(const Duration(hours: -4))).isAfter(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 4, 0, 0)))
-                ...[
+              else ...[
                 Center(
                   child:
                   ElevatedButton(
@@ -312,14 +311,19 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
                           )
                       ),
                       onPressed: () {
-                        getJSONData().then((value) {
-                          exBox.put('isGuiding', true);
-                          exBox.put('subPathIndex', 0);
-                          exBox.put('nextRouteType', route[0]["trafficType"]);
-                          Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => Home()),);
-                        });
 
+                        // TODO: 두번 눌러야 로드 되는 상황 발생 (이유를 모르겠음)
+
+                        getJSONData();
+
+                        exBox.put('isGuiding', true);
+                        exBox.put('subPathIndex', 0);
+                        exBox.put('nextRouteType', route[0]["trafficType"]);
+                        Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Home()),
+                        );
                       },
                       child: Text('택시 경로 안내')),
                 )
@@ -344,37 +348,48 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
   Future<String?> getJSONData() async {
 
     Future<Position?> position = getLocation();
+    String domain = "";
+
+    String x = exBox.get('x', defaultValue: "126.955870181663");
+    String y = exBox.get('y', defaultValue: "37.5038217213134");
+
+    print('lock_screen_activity_page');
+    print(position);
+    print(x);
+    print(y);
+
     if (mounted) setState(() {});
     position?.then((data) async {
 
       // TODO: Get data from server!
-      // var url = 'http://도메인주소/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
-      // var response = await http.get(Uri.parse(url), headers: {"Authorization": ""});
+      // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+      // var response = await http.get(Uri.parse(url));
 
-      // var response = await rootBundle.loadString('json/response.json');
-
-      var response = await rootBundle.loadString('assets/json/response_taxi.json').then((response) {
+      var response = await rootBundle.loadString('assets/json/response_taxi.json').then((response) async {
         setState(() {
+          print('no');
           route.clear();
-          // var dataConvertedToJSON = json.decode(response.body);
           var dataConvertedToJSON = json.decode(response);
+          // var dataConvertedToJSON = json.decode(response.body);
           departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
           duration = departureTime.difference(DateTime.now());
+          print(duration.inSeconds);
           if (duration.inSeconds > 0) {
             // TODO: set _setDepartureTimeData
             List result = dataConvertedToJSON["pathInfo"]["subPath"];
             route.addAll(result);
-            exBox.put('route', route);  // TODO: test hive
-          }else{
+            print(route);
+            exBox.put('route', route); // TODO: test hive
+          } else {
             duration = const Duration(seconds: 0);
           }
         });
-
       });
 
       // return response.body;
       return response;
     });
+
 
     return "";
   }

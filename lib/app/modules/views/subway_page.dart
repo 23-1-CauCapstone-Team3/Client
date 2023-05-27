@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -746,32 +747,39 @@ class _SubwayPage extends State<SubwayPage> {
   Future<String?> getJSONData() async {
 
     Future<Position?> position = getLocation();
+    String domain = "";
+
+    String x = exBox.get('x', defaultValue: "126.955870181663");
+    String y = exBox.get('y', defaultValue: "37.5038217213134");
+
+    print('subway_page');
+    print(position);
+    print(x);
+    print(y);
+
     if (mounted) setState(() {});
     position?.then((data) async {
 
       // TODO: Get data from server!
-      // var url = 'http://도메인주소/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
-      // var response = await http.get(Uri.parse(url), headers: {"Authorization": ""});
+      // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+      // var response = await http.get(Uri.parse(url));
 
-      // var response = await rootBundle.loadString('json/response.json');
+      var response = await rootBundle.loadString('assets/json/response_taxi.json');
 
-      var response = await rootBundle.loadString('assets/json/response_taxi.json').then((response) {
-        setState(() {
-          route.clear();
-          // var dataConvertedToJSON = json.decode(response.body);
-          var dataConvertedToJSON = json.decode(response);
-          departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
-          duration = departureTime.difference(DateTime.now());
-          if (duration.inSeconds > 0) {
-            // TODO: set _setDepartureTimeData
-            List result = dataConvertedToJSON["pathInfo"]["subPath"];
-            route.addAll(result);
-            exBox.put('route', route);  // TODO: test hive
-          }else{
-            duration = const Duration(seconds: 0);
-          }
-        });
-
+      setState(() {
+        route.clear();
+        var dataConvertedToJSON = json.decode(response);
+        // var dataConvertedToJSON = json.decode(response.body);
+        departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
+        duration = departureTime.difference(DateTime.now());
+        if (duration.inSeconds > 0) {
+          // TODO: set _setDepartureTimeData
+          List result = dataConvertedToJSON["pathInfo"]["subPath"];
+          route.addAll(result);
+          exBox.put('route', route);  // TODO: test hive
+        }else{
+          duration = const Duration(seconds: 0);
+        }
       });
 
       // return response.body;

@@ -38,6 +38,8 @@ class _CurrentRoutePageState extends State<CurrentRoutePage> with AutomaticKeepA
 
   @override
   void initState() {
+    page = LockScreenActivityPage();
+
     if (exBox.get("isGuiding", defaultValue: false)){
       int nextRouteType = exBox.get("nextRouteType", defaultValue: 0);
       if(nextRouteType == 1){
@@ -60,10 +62,10 @@ class _CurrentRoutePageState extends State<CurrentRoutePage> with AutomaticKeepA
         page = LockScreenActivityPage();
       }
     }
-    else {
-      print('else');
-      page = LockScreenActivityPage();
-    }
+    // else {
+    //   print('else');
+    //   page = LockScreenActivityPage();
+    // }
     super.initState();
   }
 
