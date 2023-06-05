@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -43,7 +41,7 @@ class _SubwayPage extends State<SubwayPage> {
       _timer = Timer.periodic(Duration(seconds: 1), (timer) {
         _setCountDown();
       });
-    }else{
+    } else {
       setState(() {
         duration = const Duration(seconds: 0);
       });
@@ -93,7 +91,6 @@ class _SubwayPage extends State<SubwayPage> {
       duration = departureTime.difference(DateTime.now());
 
       if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
-
     } else {
       departureTime = DateTime.now();
       duration = departureTime.difference(DateTime.now());
@@ -186,8 +183,7 @@ class _SubwayPage extends State<SubwayPage> {
                       ),
                       SizedBox(
                         height: 20,
-                        child:
-                        Text(
+                        child: Text(
                           '${route[route.length - 1]["endName"]}',
                           style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
                         ),
@@ -238,8 +234,7 @@ class _SubwayPage extends State<SubwayPage> {
                     Divider(
                       color: Colors.white54,
                     ),
-                  ]
-                  else if (route[subPathIndex + 2]['trafficType'] == 2) ...[
+                  ] else if (route[subPathIndex + 2]['trafficType'] == 2) ...[
                     // 다음 대중교통: 버스
                     Text(
                       '탑승 예정 버스 정보',
@@ -278,8 +273,7 @@ class _SubwayPage extends State<SubwayPage> {
                     Divider(
                       color: Colors.white54,
                     ),
-                  ]
-                  else ...[
+                  ] else ...[
                     // 다음 대중교통: 택시
                     // TODO
                   ],
@@ -370,7 +364,8 @@ class _SubwayPage extends State<SubwayPage> {
                           height: 15,
                           color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]],
                         ),
-                      ]),Row(children: [
+                      ]),
+                      Row(children: [
                         SizedBox(
                           width: 20,
                         ),
@@ -380,22 +375,24 @@ class _SubwayPage extends State<SubwayPage> {
                           color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]],
                         ),
                       ]),
-                      if (route[subPathIndex]["stationCount"] - currentStation > 1) ...[ Row(children: [
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Icon(Icons.radio_button_unchecked, color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]]),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        SizedBox(
-                          height: 20,
-                          child: Text(
-                            '${stations[currentStation+1]["stationName"]}',
-                            style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                      if (route[subPathIndex]["stationCount"] - currentStation > 1) ...[
+                        Row(children: [
+                          SizedBox(
+                            width: 10,
                           ),
-                        ),
-                      ])],
+                          Icon(Icons.radio_button_unchecked, color: TransportColors.subway[route[subPathIndex]["lane"][0]["subwayCode"]]),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          SizedBox(
+                            height: 20,
+                            child: Text(
+                              '${stations[currentStation + 1]["stationName"]}',
+                              style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                            ),
+                          ),
+                        ])
+                      ],
                       Row(children: [
                         SizedBox(
                           width: 20,
@@ -497,7 +494,6 @@ class _SubwayPage extends State<SubwayPage> {
                         ]),
                       ])
                 ],
-
                 Row(children: [
                   SizedBox(
                     width: 20,
@@ -586,30 +582,68 @@ class _SubwayPage extends State<SubwayPage> {
                   height: 20,
                 ),
                 Center(
-                  child:
-                  ElevatedButton(
+                  child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.amber[800],
                           fixedSize: Size(200, 50),
                           textStyle: TextStyle(
                             color: Colors.white,
-                            fontSize: 20, fontFamily: 'NanumSquareNeo',
-                          )
-                      ),
+                            fontSize: 20,
+                            fontFamily: 'NanumSquareNeo',
+                          )),
                       onPressed: () {
-                        getJSONData().then((value) {
-                          route = exBox.get('route', defaultValue: []);
-                          departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours: 24)));
-                          duration = departureTime.difference(DateTime.now());
-                          if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
+                        // TODO: 두번 눌러야 로드 되는 상황 발생 (이유를 모르겠음)
 
-                          exBox.put('isGuiding', true);
-                          exBox.put('subPathIndex', 0);
-                          exBox.put('nextRouteType', route[0]["trafficType"]);
-                          Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => Home()),);
+                        Future<Position?> position = getLocation();
+                        String domain = "";
+
+                        String x = exBox.get('x', defaultValue: "126.955870181663");
+                        String y = exBox.get('y', defaultValue: "37.5038217213134");
+
+                        if (mounted) setState(() {});
+                        position?.then((data) async {
+                          // TODO: Get data from server!
+                          // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+                          // var response = await http.get(Uri.parse(url));
+
+                          print('lock_screen_activity_page');
+                          print(data);
+                          print(x);
+                          print(y);
+
+                          var response = await rootBundle.loadString('assets/json/response_taxi.json');
+
+                          setState(() {
+                            print('in setState');
+                            route.clear();
+                            var dataConvertedToJSON = json.decode(response);
+                            // var dataConvertedToJSON = json.decode(response.body);
+                            departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
+                            duration = departureTime.difference(DateTime.now());
+
+                            print(duration.inSeconds);
+
+                            if (duration.inSeconds > 0) {
+                              // TODO: set _setDepartureTimeData
+                              List result = dataConvertedToJSON["pathInfo"]["subPath"];
+                              route.addAll(result);
+                              print(route);
+                              exBox.put('route', route); // TODO: test hive
+                              exBox.put('departureTime', departureTime);
+                            } else {
+                              duration = const Duration(seconds: 0);
+                            }
+
+                            exBox.put('isGuiding', true);
+                            exBox.put('subPathIndex', 0);
+                            exBox.put('nextRouteType', route[0]["trafficType"]);
+                            Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Home()),
+                            );
+                          });
                         });
-
                       },
                       child: Text('택시 경로 안내')),
                 )
@@ -641,59 +675,61 @@ class _SubwayPage extends State<SubwayPage> {
 
   Text _transportName(int index) {
     if (index > -1 && index < route.length) {
-
       int transportType = route[index]["trafficType"];
 
-      if (transportType == 1){
-        return Text('${route[index]["lane"][0]["name"]}', style: const TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontFamily: 'NanumSquareNeo',
-        ));
-      }
-      else if (transportType == 2){
-        return Text('${route[index]["lane"][0]["busNo"]}' , style: const TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontFamily: 'NanumSquareNeo',
-        ));
-      }
-      else if (transportType == 3){
-        if (index == 0){
-          return const Text('도보' , style: TextStyle(
-            color: Colors.white,
-            fontSize: 10,
-            fontFamily: 'NanumSquareNeo',
-          ));
-        }else{
-          return const Text('하차' , style: TextStyle(
-            color: Colors.white,
-            fontSize: 10,
-            fontFamily: 'NanumSquareNeo',
-          ));
+      if (transportType == 1) {
+        return Text('${route[index]["lane"][0]["name"]}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontFamily: 'NanumSquareNeo',
+            ));
+      } else if (transportType == 2) {
+        return Text('${route[index]["lane"][0]["busNo"]}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontFamily: 'NanumSquareNeo',
+            ));
+      } else if (transportType == 3) {
+        if (index == 0) {
+          return const Text('도보',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontFamily: 'NanumSquareNeo',
+              ));
+        } else {
+          return const Text('하차',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontFamily: 'NanumSquareNeo',
+              ));
         }
-      }
-      else if (transportType == 4){
-        return const Text('하차' , style: TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontFamily: 'NanumSquareNeo',
-        ));
-      }
-      else if (transportType == 5){
-        return const Text('택시 승차' , style: TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontFamily: 'NanumSquareNeo',
-        ));
+      } else if (transportType == 4) {
+        return const Text('하차',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontFamily: 'NanumSquareNeo',
+            ));
+      } else if (transportType == 5) {
+        return const Text('택시 승차',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontFamily: 'NanumSquareNeo',
+            ));
       }
     }
 
-    return const Text('도보',  style: TextStyle(
-      color: Colors.white,
-      fontSize: 10,
-      fontFamily: 'NanumSquareNeo',
-    ));
+    return const Text('도보',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontFamily: 'NanumSquareNeo',
+        ));
   }
 
   Future<void> findCurrentStation() async {
@@ -702,14 +738,12 @@ class _SubwayPage extends State<SubwayPage> {
     int stationCount = route[subPathIndex]["stationCount"];
 
     for (int i = 0; i < stationCount; i++) {
-      bool lat = (position.latitude <= double.parse(stations[i]["y"]) && position.latitude > double.parse(stations[i + 1]["y"])) || (position.latitude < double.parse(stations[i + 1]["y"]) && position.latitude >= double.parse
-        (stations[i]["y"]));
-      bool lon = (position.longitude <= double.parse(stations[i]["x"]) && position.longitude > double.parse(stations[i + 1]["x"])) || (position.longitude < double.parse(stations[i + 1]["x"]) && position.longitude >= double.parse
-        (stations[i]["x"]));
-
+      bool lat =
+          (position.latitude <= double.parse(stations[i]["y"]) && position.latitude > double.parse(stations[i + 1]["y"])) || (position.latitude < double.parse(stations[i + 1]["y"]) && position.latitude >= double.parse(stations[i]["y"]));
+      bool lon = (position.longitude <= double.parse(stations[i]["x"]) && position.longitude > double.parse(stations[i + 1]["x"])) ||
+          (position.longitude < double.parse(stations[i + 1]["x"]) && position.longitude >= double.parse(stations[i]["x"]));
 
       if (lat && lon) {
-
         currentStation = i;
 
         return;
@@ -717,13 +751,13 @@ class _SubwayPage extends State<SubwayPage> {
     }
 
     var _distanceInMeters = await Geolocator.distanceBetween(
-        double.parse(stations[route[subPathIndex]["stationCount"]]["y"]),
+      double.parse(stations[route[subPathIndex]["stationCount"]]["y"]),
       double.parse(stations[route[subPathIndex]["stationCount"]]["x"]),
       position.latitude,
       position.longitude,
     );
 
-    if (_distanceInMeters < 200){
+    if (_distanceInMeters < 200) {
       exBox.put('isGuiding', true);
       exBox.put('subPathIndex', subPathIndex + 1);
       exBox.put('nextRouteType', route[subPathIndex + 1]["trafficType"]);
@@ -742,50 +776,5 @@ class _SubwayPage extends State<SubwayPage> {
     Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
     return position;
-  }
-
-  Future<String?> getJSONData() async {
-
-    Future<Position?> position = getLocation();
-    String domain = "";
-
-    String x = exBox.get('x', defaultValue: "126.955870181663");
-    String y = exBox.get('y', defaultValue: "37.5038217213134");
-
-    print('subway_page');
-    print(position);
-    print(x);
-    print(y);
-
-    if (mounted) setState(() {});
-    position?.then((data) async {
-
-      // TODO: Get data from server!
-      // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
-      // var response = await http.get(Uri.parse(url));
-
-      var response = await rootBundle.loadString('assets/json/response_taxi.json');
-
-      setState(() {
-        route.clear();
-        var dataConvertedToJSON = json.decode(response);
-        // var dataConvertedToJSON = json.decode(response.body);
-        departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
-        duration = departureTime.difference(DateTime.now());
-        if (duration.inSeconds > 0) {
-          // TODO: set _setDepartureTimeData
-          List result = dataConvertedToJSON["pathInfo"]["subPath"];
-          route.addAll(result);
-          exBox.put('route', route);  // TODO: test hive
-        }else{
-          duration = const Duration(seconds: 0);
-        }
-      });
-
-      // return response.body;
-      return response;
-    });
-
-    return "";
   }
 }

@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -39,7 +37,7 @@ class _TaxiPage extends State<TaxiPage> {
       _timer = Timer.periodic(Duration(seconds: 1), (timer) {
         _setCountDown();
       });
-    }else{
+    } else {
       setState(() {
         duration = const Duration(seconds: 0);
       });
@@ -87,7 +85,6 @@ class _TaxiPage extends State<TaxiPage> {
       duration = departureTime.difference(DateTime.now());
 
       if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
-
     } else {
       departureTime = DateTime.now();
       duration = departureTime.difference(DateTime.now());
@@ -435,30 +432,68 @@ class _TaxiPage extends State<TaxiPage> {
                   height: 20,
                 ),
                 Center(
-                  child:
-                  ElevatedButton(
+                  child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.amber[800],
                           fixedSize: Size(200, 50),
                           textStyle: TextStyle(
                             color: Colors.white,
-                            fontSize: 20, fontFamily: 'NanumSquareNeo',
-                          )
-                      ),
+                            fontSize: 20,
+                            fontFamily: 'NanumSquareNeo',
+                          )),
                       onPressed: () {
-                        getJSONData().then((value) {
-                          route = exBox.get('route', defaultValue: []);
-                          departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours: 24)));
-                          duration = departureTime.difference(DateTime.now());
-                          if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
+                        // TODO: 두번 눌러야 로드 되는 상황 발생 (이유를 모르겠음)
 
-                          exBox.put('isGuiding', true);
-                          exBox.put('subPathIndex', 0);
-                          exBox.put('nextRouteType', route[0]["trafficType"]);
-                          Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => Home()),);
+                        Future<Position?> position = getLocation();
+                        String domain = "";
+
+                        String x = exBox.get('x', defaultValue: "126.955870181663");
+                        String y = exBox.get('y', defaultValue: "37.5038217213134");
+
+                        if (mounted) setState(() {});
+                        position?.then((data) async {
+                          // TODO: Get data from server!
+                          // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+                          // var response = await http.get(Uri.parse(url));
+
+                          print('lock_screen_activity_page');
+                          print(data);
+                          print(x);
+                          print(y);
+
+                          var response = await rootBundle.loadString('assets/json/response_taxi.json');
+
+                          setState(() {
+                            print('in setState');
+                            route.clear();
+                            var dataConvertedToJSON = json.decode(response);
+                            // var dataConvertedToJSON = json.decode(response.body);
+                            departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
+                            duration = departureTime.difference(DateTime.now());
+
+                            print(duration.inSeconds);
+
+                            if (duration.inSeconds > 0) {
+                              // TODO: set _setDepartureTimeData
+                              List result = dataConvertedToJSON["pathInfo"]["subPath"];
+                              route.addAll(result);
+                              print(route);
+                              exBox.put('route', route); // TODO: test hive
+                              exBox.put('departureTime', departureTime);
+                            } else {
+                              duration = const Duration(seconds: 0);
+                            }
+
+                            exBox.put('isGuiding', true);
+                            exBox.put('subPathIndex', 0);
+                            exBox.put('nextRouteType', route[0]["trafficType"]);
+                            Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Home()),
+                            );
+                          });
                         });
-
                       },
                       child: Text('택시 경로 안내')),
                 )
@@ -576,50 +611,5 @@ class _TaxiPage extends State<TaxiPage> {
     Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
     return position;
-  }
-
-  Future<String?> getJSONData() async {
-
-    Future<Position?> position = getLocation();
-    String domain = "";
-
-    String x = exBox.get('x', defaultValue: "126.955870181663");
-    String y = exBox.get('y', defaultValue: "37.5038217213134");
-
-    print('taxi_page');
-    print(position);
-    print(x);
-    print(y);
-
-    if (mounted) setState(() {});
-    position?.then((data) async {
-
-      // TODO: Get data from server!
-      // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
-      // var response = await http.get(Uri.parse(url));
-
-      var response = await rootBundle.loadString('assets/json/response_taxi.json');
-
-      setState(() {
-        route.clear();
-        var dataConvertedToJSON = json.decode(response);
-        // var dataConvertedToJSON = json.decode(response.body);
-        departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
-        duration = departureTime.difference(DateTime.now());
-        if (duration.inSeconds > 0) {
-          // TODO: set _setDepartureTimeData
-          List result = dataConvertedToJSON["pathInfo"]["subPath"];
-          route.addAll(result);
-          exBox.put('route', route);  // TODO: test hive
-        }else{
-          duration = const Duration(seconds: 0);
-        }
-      });
-
-      // return response.body;
-      return response;
-    });
-
-    return "";
   }
 }

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -89,7 +88,7 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
 
     if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
 
-    if(route.isNotEmpty){
+    if (route.isNotEmpty) {
       route[0]["steps"].forEach((feature) {
         if (feature["geometry"]["type"] == "Point") {
           _coordinates.add(LatLng(feature["geometry"]["coordinates"][1], feature["geometry"]["coordinates"][0]));
@@ -116,14 +115,13 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
 
   @override
   Widget build(BuildContext context) {
-
     route = exBox.get('route', defaultValue: []);
     departureTime = exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours: 24)));
     duration = departureTime.difference(DateTime.now());
 
     if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
 
-    if(route.isNotEmpty && _coordinates.isEmpty && _markers.isEmpty){
+    if (route.isNotEmpty && _coordinates.isEmpty && _markers.isEmpty) {
       route[0]["steps"].forEach((feature) {
         if (feature["geometry"]["type"] == "Point") {
           _coordinates.add(LatLng(feature["geometry"]["coordinates"][1], feature["geometry"]["coordinates"][0]));
@@ -152,10 +150,11 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
         backgroundColor: CustomColors.pageBackgroundColor,
         body: Container(
           padding: const EdgeInsets.fromLTRB(15, 50, 15, 0),
-          child: SingleChildScrollView(child: Column(
+          child: SingleChildScrollView(
+              child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              if (exBox.get('todayAlarm') == true && exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours:24))).difference(DateTime.now()).compareTo(Duration(minutes: 20)) < 0 && route.isNotEmpty) ... [
+              if (exBox.get('todayAlarm') == true && exBox.get('departureTime', defaultValue: DateTime.now().add(Duration(hours: 24))).difference(DateTime.now()).compareTo(Duration(minutes: 20)) < 0 && route.isNotEmpty) ...[
                 Text(
                   '출발 시각까지',
                   style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 33),
@@ -178,7 +177,6 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
                   ],
                 ),
                 SizedBox(height: 20),
-
                 if (route[1]["trafficType"] == 1) ...[
                   // 다음 대중교통: 지하철
                   Text(
@@ -221,101 +219,71 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
                   // 다음 대중교통: 택시
                   // TODO
                 ],
-
                 SizedBox(height: 20),
-
                 Center(
                     child: SizedBox(
-                      height: 300,
-                      width: 400,
-                      child: NaverMap(
-                        onMapCreated: onMapCreated,
-                        mapType: _mapType,
-                        locationButtonEnable: true,
-                        markers: [
-                          Marker(markerId: 'start', position: LatLng(route[0]["startY"], route[0]["startX"]), width: 30, height: 40),
-                          Marker(markerId: 'end', position: LatLng(route[0]["endY"], route[0]["endX"]), width: 30, height: 40),
-                        ],
-                        pathOverlays: {
-                          PathOverlay(
-                            PathOverlayId('path'),
-                            _coordinates,
-                            width: 5,
-                            color: Colors.orange,
-                            outlineColor: Colors.white,
-                          )
-                        },
-                        initialCameraPosition: CameraPosition(target: LatLng((route[0]["startY"] + route[0]["endY"]) / 2, (route[0]["startX"] + route[0]["endX"]) / 2)),
-                      ),
-                    )),
-
+                  height: 300,
+                  width: 400,
+                  child: NaverMap(
+                    onMapCreated: onMapCreated,
+                    mapType: _mapType,
+                    locationButtonEnable: true,
+                    markers: [
+                      Marker(markerId: 'start', position: LatLng(route[0]["startY"], route[0]["startX"]), width: 30, height: 40),
+                      Marker(markerId: 'end', position: LatLng(route[0]["endY"], route[0]["endX"]), width: 30, height: 40),
+                    ],
+                    pathOverlays: {
+                      PathOverlay(
+                        PathOverlayId('path'),
+                        _coordinates,
+                        width: 5,
+                        color: Colors.orange,
+                        outlineColor: Colors.white,
+                      )
+                    },
+                    initialCameraPosition: CameraPosition(target: LatLng((route[0]["startY"] + route[0]["endY"]) / 2, (route[0]["startX"] + route[0]["endX"]) / 2)),
+                  ),
+                )),
                 const SizedBox(height: 20),
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  OutlinedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          fixedSize: Size(150, 50),
+                          textStyle: TextStyle(
+                            color: Colors.blueAccent,
+                            fontSize: 20,
+                            fontFamily: 'NanumSquareNeo',
+                          )),
+                      onPressed: () {
+                        exBox.put('todayAlarm', false);
+                        exBox.put('todayWakeUpCheck', false);
+                        exBox.put('todayWakeUpHelp', false);
 
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      OutlinedButton(
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              fixedSize: Size(150, 50),
-                              textStyle: TextStyle(
-                                color: Colors.blueAccent,
-                                fontSize: 20, fontFamily: 'NanumSquareNeo',
-                              )
-                          ),
-                          onPressed: () {
-                            exBox.put('todayAlarm', false);
-                            exBox.put('todayWakeUpCheck', false);
-                            exBox.put('todayWakeUpHelp', false);
+                        exBox.put('isGuiding', false);
+                        exBox.put('subPathIndex', 0);
+                        exBox.put('nextRouteType', 3);
 
-                            exBox.put('isGuiding', false);
-                            exBox.put('subPathIndex', 0);
-                            exBox.put('nextRouteType', 3);
+                        exBox.delete('route');
 
-                            exBox.delete('route');
-
-                            Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => Home()),);
-                          },
-                          child: Text('안내 종료')),
-                      const SizedBox(width: 30),
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blueAccent,
-                              fixedSize: Size(150, 50),
-                              textStyle: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20, fontFamily: 'NanumSquareNeo',
-                              )
-                          ),
-                          onPressed: () {
-                            exBox.put('isGuiding', true);
-                            exBox.put('subPathIndex', 0);
-                            exBox.put('nextRouteType', route[0]["trafficType"]);
-                            Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => Home()),);
-                          },
-                          child: Text('안내 시작')),
-                    ])
-              ]
-              else ...[
-                Center(
-                  child:
+                        Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Home()),
+                        );
+                      },
+                      child: Text('안내 종료')),
+                  const SizedBox(width: 30),
                   ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.amber[800],
-                          fixedSize: Size(200, 50),
+                          backgroundColor: Colors.blueAccent,
+                          fixedSize: Size(150, 50),
                           textStyle: TextStyle(
                             color: Colors.white,
-                            fontSize: 20, fontFamily: 'NanumSquareNeo',
-                          )
-                      ),
+                            fontSize: 20,
+                            fontFamily: 'NanumSquareNeo',
+                          )),
                       onPressed: () {
-
-                        // TODO: 두번 눌러야 로드 되는 상황 발생 (이유를 모르겠음)
-
-                        getJSONData();
-
                         exBox.put('isGuiding', true);
                         exBox.put('subPathIndex', 0);
                         exBox.put('nextRouteType', route[0]["trafficType"]);
@@ -324,6 +292,73 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
                           context,
                           MaterialPageRoute(builder: (context) => Home()),
                         );
+                      },
+                      child: Text('안내 시작')),
+                ])
+              ] else ...[
+                Center(
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber[800],
+                          fixedSize: Size(200, 50),
+                          textStyle: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontFamily: 'NanumSquareNeo',
+                          )),
+                      onPressed: () {
+                        // TODO: 두번 눌러야 로드 되는 상황 발생 (이유를 모르겠음)
+
+                        Future<Position?> position = getLocation();
+                        String domain = "";
+
+                        String x = exBox.get('x', defaultValue: "126.955870181663");
+                        String y = exBox.get('y', defaultValue: "37.5038217213134");
+
+                        if (mounted) setState(() {});
+                        position?.then((data) async {
+                          // TODO: Get data from server!
+                          // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+                          // var response = await http.get(Uri.parse(url));
+
+                          print('lock_screen_activity_page');
+                          print(data);
+                          print(x);
+                          print(y);
+
+                          var response = await rootBundle.loadString('assets/json/response_taxi.json');
+
+                          setState(() {
+                            print('in setState');
+                            route.clear();
+                            var dataConvertedToJSON = json.decode(response);
+                            // var dataConvertedToJSON = json.decode(response.body);
+                            departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
+                            duration = departureTime.difference(DateTime.now());
+
+                            print(duration.inSeconds);
+
+                            if (duration.inSeconds > 0) {
+                              // TODO: set _setDepartureTimeData
+                              List result = dataConvertedToJSON["pathInfo"]["subPath"];
+                              route.addAll(result);
+                              print(route);
+                              exBox.put('route', route); // TODO: test hive
+                              exBox.put('departureTime', departureTime);
+                            } else {
+                              duration = const Duration(seconds: 0);
+                            }
+
+                            exBox.put('isGuiding', true);
+                            exBox.put('subPathIndex', 0);
+                            exBox.put('nextRouteType', route[0]["trafficType"]);
+                            Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Home()),
+                            );
+                          });
+                        });
                       },
                       child: Text('택시 경로 안내')),
                 )
@@ -343,54 +378,5 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
     Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
     return position;
-  }
-
-  Future<String?> getJSONData() async {
-
-    Future<Position?> position = getLocation();
-    String domain = "";
-
-    String x = exBox.get('x', defaultValue: "126.955870181663");
-    String y = exBox.get('y', defaultValue: "37.5038217213134");
-
-    print('lock_screen_activity_page');
-    print(position);
-    print(x);
-    print(y);
-
-    if (mounted) setState(() {});
-    position?.then((data) async {
-
-      // TODO: Get data from server!
-      // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
-      // var response = await http.get(Uri.parse(url));
-
-      var response = await rootBundle.loadString('assets/json/response_taxi.json').then((response) async {
-        setState(() {
-          print('no');
-          route.clear();
-          var dataConvertedToJSON = json.decode(response);
-          // var dataConvertedToJSON = json.decode(response.body);
-          departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
-          duration = departureTime.difference(DateTime.now());
-          print(duration.inSeconds);
-          if (duration.inSeconds > 0) {
-            // TODO: set _setDepartureTimeData
-            List result = dataConvertedToJSON["pathInfo"]["subPath"];
-            route.addAll(result);
-            print(route);
-            exBox.put('route', route); // TODO: test hive
-          } else {
-            duration = const Duration(seconds: 0);
-          }
-        });
-      });
-
-      // return response.body;
-      return response;
-    });
-
-
-    return "";
   }
 }
