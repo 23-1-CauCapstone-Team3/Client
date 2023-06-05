@@ -135,6 +135,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
         exBox.put('y', y);
         print("loadTodayAlarm");
         getJSONData(); // 서버에서 값 가져오기
+        _startTimer();
       } else {
         todayAlarm = false;
         exBox.put('todayAlarm', todayAlarm);
@@ -965,7 +966,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                   // This is called when the user toggles the switch.
                   setState(() {
                     isGuiding = exBox.get('isGuiding', defaultValue: false);
-                    print(isGuiding);
+                    // print(isGuiding);
 
                     if (!isGuiding) {
                       _flagTodayAlarm = todayAlarm;
