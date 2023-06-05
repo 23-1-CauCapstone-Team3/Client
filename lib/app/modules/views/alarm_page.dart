@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:last_transport/app/data/theme_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -76,7 +75,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
       final seconds = duration.inSeconds - reduceSecondsBy;
       if (seconds - 1 < 0) {
         duration = const Duration(seconds: 0);
-        _timer?.cancel();
+        _stopTimer();
         deleteDateAlarm(departureTime);
         todayAlarm = false;
         exBox.put('todayAlarm', false);
@@ -519,6 +518,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                               ),
                               CupertinoButton(
                                   onPressed: () {
+                                    loadLocations();
                                     showModalBottomSheet<void>(
                                       isScrollControlled: true,
                                       backgroundColor: CustomColors.sheetBackgroundColor,
@@ -965,6 +965,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                   // This is called when the user toggles the switch.
                   setState(() {
                     isGuiding = exBox.get('isGuiding', defaultValue: false);
+                    print(isGuiding);
 
                     if (!isGuiding) {
                       _flagTodayAlarm = todayAlarm;
@@ -973,11 +974,10 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                         getJSONData();
                         _startTimer();
                       }
+                      else if (_flagTodayAlarm && !todayAlarm) {
+                        _stopTimer();
+                      }
                       exBox.put('todayAlarm', todayAlarm);
-                    }
-
-                    if(todayAlarm) {
-                      _stopTimer();
                     }
                   });
                 },
@@ -1167,7 +1167,6 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
       print(data);
       print(x);
       print(y);
-
 
       var response = await rootBundle.loadString('assets/json/response.json');
 
