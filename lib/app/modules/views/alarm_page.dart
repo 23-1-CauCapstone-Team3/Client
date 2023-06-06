@@ -1145,6 +1145,12 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
 
     if (mounted) setState(() {});
     position?.then((data) async {
+
+      print(data);
+      print(x);
+      print(y);
+
+      ///  Use this code when using server.
       // TODO: Get data from server!
       // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
       // var response = await http.get(Uri.parse(url));
@@ -1165,10 +1171,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
       //   }
       // });
 
-      print(data);
-      print(x);
-      print(y);
-
+      /// Use this code when using json file.
       var response = await rootBundle.loadString('assets/json/response.json');
 
       setState(() {

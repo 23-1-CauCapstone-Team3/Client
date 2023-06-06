@@ -602,22 +602,24 @@ class _SubwayPage extends State<SubwayPage> {
 
                         if (mounted) setState(() {});
                         position?.then((data) async {
-                          // TODO: Get data from server!
-                          // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
-                          // var response = await http.get(Uri.parse(url));
-
-                          print('lock_screen_activity_page');
+                          print('subway_page');
                           print(data);
                           print(x);
                           print(y);
 
+                          /// Use this code when using server.
+                          // TODO: Get data from server!
+                          // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+                          // var response = await http.get(Uri.parse(url));
+
+                          /// Use this code when using json file.
                           var response = await rootBundle.loadString('assets/json/response_taxi.json');
 
                           setState(() {
                             print('in setState');
                             route.clear();
-                            var dataConvertedToJSON = json.decode(response);
-                            // var dataConvertedToJSON = json.decode(response.body);
+                            var dataConvertedToJSON = json.decode(response);          //  Use this code when using json file.
+                            // var dataConvertedToJSON = json.decode(response.body);  //  Use this code when using server.
                             departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
                             duration = departureTime.difference(DateTime.now());
 
