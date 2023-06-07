@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:http/http.dart' as http;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1141,7 +1143,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   Future<String?> getJSONData() async {
     Future<Position?> position = getLocation();
 
-    String domain = "0d26-58-76-161-56.ngrok-free.app";
+    String domain = "e161-58-76-161-56.ngrok-free.app";
 
     if (mounted) setState(() {});
     position?.then((data) async {
@@ -1152,13 +1154,33 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
 
       ///  Use this code when using server.
       // TODO: Get data from server!
-      // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
-      // var response = await http.get(Uri.parse(url));
+      var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+      var response = await http.get(Uri.parse(url));
 
+      setState(() {
+        route.clear();
+        // var dataConvertedToJSON = json.decode(response);
+        var dataConvertedToJSON = json.decode(response.body);
+        departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
+        duration = departureTime.difference(DateTime.now());
+
+        if (duration.inSeconds >= 0) {
+          // TODO: set _setDepartureTimeData
+          List result = dataConvertedToJSON["pathInfo"]["subPath"];
+          print(result);
+          route.addAll(result);
+          exBox.put('route', route); // TODO: test hive
+          exBox.put('departureTime', departureTime);
+        }
+      });
+
+      /// Use this code when using json file.
+      // var response = await rootBundle.loadString('assets/json/response.json');
+      //
       // setState(() {
       //   route.clear();
-      //   // var dataConvertedToJSON = json.decode(response);
-      //   var dataConvertedToJSON = json.decode(response.body);
+      //   // var dataConvertedToJSON = json.decode(response.body);
+      //   var dataConvertedToJSON = json.decode(response);
       //   departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
       //   duration = departureTime.difference(DateTime.now());
       //
@@ -1168,29 +1190,10 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
       //     route.addAll(result);
       //     exBox.put('route', route); // TODO: test hive
       //     exBox.put('departureTime', departureTime);
+      //     exBox.put('x', x);
+      //     exBox.put('y', y);
       //   }
       // });
-
-      /// Use this code when using json file.
-      var response = await rootBundle.loadString('assets/json/response.json');
-
-      setState(() {
-        route.clear();
-        // var dataConvertedToJSON = json.decode(response.body);
-        var dataConvertedToJSON = json.decode(response);
-        departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
-        duration = departureTime.difference(DateTime.now());
-
-        if (duration.inSeconds >= 0) {
-          // TODO: set _setDepartureTimeData
-          List result = dataConvertedToJSON["pathInfo"]["subPath"];
-          route.addAll(result);
-          exBox.put('route', route); // TODO: test hive
-          exBox.put('departureTime', departureTime);
-          exBox.put('x', x);
-          exBox.put('y', y);
-        }
-      });
 
       // return response.body;
       return response;

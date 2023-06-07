@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:http/http.dart' as http;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -597,7 +599,7 @@ class _BusPage extends State<BusPage> {
                         // TODO: 두번 눌러야 로드 되는 상황 발생 (이유를 모르겠음)
 
                         Future<Position?> position = getLocation();
-                        String domain = "";
+                        String domain = "e161-58-76-161-56.ngrok-free.app";
 
                         String x = exBox.get('x', defaultValue: "126.955870181663");
                         String y = exBox.get('y', defaultValue: "37.5038217213134");
@@ -611,17 +613,17 @@ class _BusPage extends State<BusPage> {
 
                           /// Use this code when using server.
                           // TODO: Get data from server!
-                          // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
-                          // var response = await http.get(Uri.parse(url));
+                          var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+                          var response = await http.get(Uri.parse(url));
 
                           /// Use this code when using json file.
-                          var response = await rootBundle.loadString('assets/json/response_taxi.json');
+                          // var response = await rootBundle.loadString('assets/json/response_taxi.json');
 
                           setState(() {
                             print('in setState');
                             route.clear();
-                            var dataConvertedToJSON = json.decode(response);          //  Use this code when using json file.
-                            // var dataConvertedToJSON = json.decode(response.body);  //  Use this code when using server.
+                            // var dataConvertedToJSON = json.decode(response);          //  Use this code when using json file.
+                            var dataConvertedToJSON = json.decode(response.body);  //  Use this code when using server.
                             departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
                             duration = departureTime.difference(DateTime.now());
 
