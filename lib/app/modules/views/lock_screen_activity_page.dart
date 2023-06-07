@@ -217,7 +217,23 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
                   ),
                 ] else ...[
                   // 다음 대중교통: 택시
-                  // TODO
+                  Text(
+                    '${route[1]["startName"]}로 이동',
+                    style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                  ),
+                  SizedBox(height: 5),
+                  Divider(
+                    color: Colors.white54,
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    '택시 탑승',
+                    style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 18),
+                  ),
+                  SizedBox(height: 5),
+                  Divider(
+                    color: Colors.white54,
+                  ),
                 ],
                 SizedBox(height: 20),
                 Center(
@@ -311,7 +327,7 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
                         // TODO: 두번 눌러야 로드 되는 상황 발생 (이유를 모르겠음)
 
                         Future<Position?> position = getLocation();
-                        String domain = "";
+                        String domain = "e161-58-76-161-56.ngrok-free.app";
 
                         String x = exBox.get('x', defaultValue: "126.955870181663");
                         String y = exBox.get('y', defaultValue: "37.5038217213134");

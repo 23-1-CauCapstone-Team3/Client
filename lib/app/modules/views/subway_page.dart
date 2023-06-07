@@ -156,7 +156,8 @@ class _SubwayPage extends State<SubwayPage> {
                               width: 30,
                             ),
                             SizedBox(
-                              height: 20,
+                              // height: 20,
+                              width: 200,
                               child: Text(
                                 '${route[index + subPathIndex]["startName"]}',
                                 style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),

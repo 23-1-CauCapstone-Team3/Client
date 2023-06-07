@@ -328,33 +328,40 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
 
               /// 알람이 있는 경우
               if (todayAlarm && !isGuiding) ...[
-                const Text(
-                  '출발 시간까지',
-                  style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 33),
-                ),
-                Row(
-                  children: <Widget>[
-                    SizedBox(
-                      width: 164,
-                      child: Text(
-                        '$hours:$minutes:$seconds',
-                        style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 33),
+                if (duration.inSeconds > 0) ... [
+                  const Text(
+                    '출발 시간까지',
+                    style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 33),
+                  ),
+                  Row(
+                    children: <Widget>[
+                      SizedBox(
+                        width: 164,
+                        child: Text(
+                          '$hours:$minutes:$seconds',
+                          style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 33),
+                        ),
                       ),
-                    ),
-                    const Expanded(
-                      child: Text(
-                        '남았습니다',
-                        style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 33),
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  DateFormat('aa h:mm', 'ko').format(departureTime),
-                  style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 28),
-                ),
-
+                      const Expanded(
+                        child: Text(
+                          '남았습니다',
+                          style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 33),
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    DateFormat('aa h:mm', 'ko').format(departureTime),
+                    style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 28),
+                  ),
+                ]
+                else ... [
+                  const Text(
+                    '막차가 떠났습니다.',
+                    style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 40),
+                  ),
+                ]
                 /// 오늘 알람이 없는 경우
               ] else if (isGuiding) ...[
                 const Text(
@@ -1154,46 +1161,46 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
 
       ///  Use this code when using server.
       // TODO: Get data from server!
-      var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
-      var response = await http.get(Uri.parse(url));
-
-      setState(() {
-        route.clear();
-        // var dataConvertedToJSON = json.decode(response);
-        var dataConvertedToJSON = json.decode(response.body);
-        departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
-        duration = departureTime.difference(DateTime.now());
-
-        if (duration.inSeconds >= 0) {
-          // TODO: set _setDepartureTimeData
-          List result = dataConvertedToJSON["pathInfo"]["subPath"];
-          print(result);
-          route.addAll(result);
-          exBox.put('route', route); // TODO: test hive
-          exBox.put('departureTime', departureTime);
-        }
-      });
-
-      /// Use this code when using json file.
-      // var response = await rootBundle.loadString('assets/json/response.json');
+      // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+      // var response = await http.get(Uri.parse(url));
       //
       // setState(() {
       //   route.clear();
-      //   // var dataConvertedToJSON = json.decode(response.body);
-      //   var dataConvertedToJSON = json.decode(response);
+      //   // var dataConvertedToJSON = json.decode(response);
+      //   var dataConvertedToJSON = json.decode(response.body);
       //   departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
       //   duration = departureTime.difference(DateTime.now());
       //
       //   if (duration.inSeconds >= 0) {
       //     // TODO: set _setDepartureTimeData
       //     List result = dataConvertedToJSON["pathInfo"]["subPath"];
+      //     print(result);
       //     route.addAll(result);
       //     exBox.put('route', route); // TODO: test hive
       //     exBox.put('departureTime', departureTime);
-      //     exBox.put('x', x);
-      //     exBox.put('y', y);
       //   }
       // });
+
+      /// Use this code when using json file.
+      var response = await rootBundle.loadString('assets/json/response.json');
+
+      setState(() {
+        route.clear();
+        // var dataConvertedToJSON = json.decode(response.body);
+        var dataConvertedToJSON = json.decode(response);
+        departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
+        duration = departureTime.difference(DateTime.now());
+
+        if (duration.inSeconds >= 0) {
+          // TODO: set _setDepartureTimeData
+          List result = dataConvertedToJSON["pathInfo"]["subPath"];
+          route.addAll(result);
+          exBox.put('route', route); // TODO: test hive
+          exBox.put('departureTime', departureTime);
+          exBox.put('x', x);
+          exBox.put('y', y);
+        }
+      });
 
       // return response.body;
       return response;
