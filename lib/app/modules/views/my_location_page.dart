@@ -190,8 +190,7 @@ class _MyLocationPageState extends State<MyLocationPage> {
                     ]),
                     const SizedBox(height: 20),
                     Container(
-                      // height: 100,
-                      height: 200,
+                      height: 100,
                       width: 340,
                       decoration: BoxDecoration(color: CustomColors.tableBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(12))),
                       child: Center(
@@ -244,34 +243,6 @@ class _MyLocationPageState extends State<MyLocationPage> {
                                   }, // TODO
                                   child: Text(
                                     address,
-                                    // TODO - 주소 변수
-                                    style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
-                                  )),
-                            ]),
-                            _LocationItem1(children: <Widget>[
-                              const Text(
-                                'x',
-                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
-                              ),
-                              // TODO: 우측에 생기는 Padding 없애기
-                              SizedBox(
-                                  width: 200,
-                                  child: Text(
-                                    x,
-                                    // TODO - 주소 변수
-                                    style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
-                                  )),
-                            ]),
-                            _LocationItem1(children: <Widget>[
-                              const Text(
-                                'y',
-                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
-                              ),
-                              // TODO: 우측에 생기는 Padding 없애기
-                              SizedBox(
-                                  width: 200,
-                                  child: Text(
-                                    y,
                                     // TODO - 주소 변수
                                     style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
                                   )),
@@ -378,16 +349,6 @@ class _MyLocationPageState extends State<MyLocationPage> {
                                         style: const TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 15),
                                       ),
                                       const SizedBox(height: 8),
-                                      Text(
-                                        data[index]['x'].toString(),
-                                        style: const TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 15),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        data[index]['y'].toString(),
-                                        style: const TextStyle(color: Colors.white54, fontFamily: 'NanumSquareNeo', fontSize: 15),
-                                      ),
-                                      const SizedBox(height: 8),
                                       const Divider(
                                         color: Colors.white54,
                                         thickness: 0,
@@ -406,7 +367,7 @@ class _MyLocationPageState extends State<MyLocationPage> {
   Future<String?> getJSONData(String value) async {
 
     var url = 'https://dapi.kakao.com/v2/local/search/keyword.json?target=place_name&query=$value';
-    var response = await http.get(Uri.parse(url), headers: {"Authorization": "KakaoAK 37e042617856e851454e08c71556238d"});
+    var response = await http.get(Uri.parse(url), headers: {"Authorization": "KakaoAK [your kakao rest api key]"});
 
     setState(() {
       data.clear();
@@ -563,8 +524,7 @@ class _MyLocationPageState extends State<MyLocationPage> {
                     ]),
                     const SizedBox(height: 20),
                     Container(
-                      // height: 100,
-                      height: 200,
+                      height: 100,
                       width: 340,
                       decoration: BoxDecoration(color: CustomColors.tableBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(12))),
                       child: Center(
@@ -618,34 +578,6 @@ class _MyLocationPageState extends State<MyLocationPage> {
                                   }, // TODO
                                   child: Text(
                                     address,
-                                    // TODO - 주소 변수
-                                    style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
-                                  )),
-                            ]),
-                            _LocationItem1(children: <Widget>[
-                              const Text(
-                                'x',
-                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
-                              ),
-                              // TODO: 우측에 생기는 Padding 없애기
-                              SizedBox(
-                                  width: 200,
-                                  child: Text(
-                                    x,
-                                    // TODO - 주소 변수
-                                    style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
-                                  )),
-                            ]),
-                            _LocationItem1(children: <Widget>[
-                              const Text(
-                                'y',
-                                style: TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 15),
-                              ),
-                              // TODO: 우측에 생기는 Padding 없애기
-                              SizedBox(
-                                  width: 200,
-                                  child: Text(
-                                    y,
                                     // TODO - 주소 변수
                                     style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white54, fontSize: 15),
                                   )),
