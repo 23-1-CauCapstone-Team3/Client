@@ -86,7 +86,7 @@ class _TaxiPage extends State<TaxiPage> {
 
       if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
     } else {
-      departureTime = DateTime.now();
+      departureTime = DateTime.now().add(Duration(hours: 24));
       duration = departureTime.difference(DateTime.now());
 
       if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
@@ -589,24 +589,34 @@ class _TaxiPage extends State<TaxiPage> {
     Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
     var _distanceInMeters = await Geolocator.distanceBetween(
-      double.parse(route[subPathIndex]["endY"]),
-      double.parse(route[subPathIndex]["endX"]),
+      route[subPathIndex]["endY"],
+      route[subPathIndex]["endX"],
       position.latitude,
       position.longitude,
     );
 
-    if (_distanceInMeters < 10) {
-      exBox.put('isGuiding', true);
-      exBox.put('subPathIndex', subPathIndex + 1);
-      exBox.put('nextRouteType', route[subPathIndex + 1]["trafficType"]);
+    if (_distanceInMeters < 100) {
+      if (subPathIndex + 1 < route.length) {
+        exBox.put('isGuiding', true);
+        exBox.put('subPathIndex', subPathIndex + 1);
+        exBox.put('nextRouteType', route[subPathIndex + 1]["trafficType"]);
+      } else {
+        exBox.put('isGuiding', false);
+        exBox.put('subPathIndex', 0);
+        exBox.put('nextRouteType', 3);
 
+        exBox.put('todayAlarm', false);
+        exBox.put('todayWakeUpCheck', false);
+        exBox.put('todayWakeUpHelp', false);
+
+        exBox.delete('route');
+      }
       Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => Home()),
       );
     }
-
     return;
   }
 

@@ -92,7 +92,7 @@ class _SubwayPage extends State<SubwayPage> {
 
       if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
     } else {
-      departureTime = DateTime.now();
+      departureTime = DateTime.now().add(Duration(hours: 24));
       duration = departureTime.difference(DateTime.now());
 
       if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
@@ -404,7 +404,7 @@ class _SubwayPage extends State<SubwayPage> {
                         ),
                       ])
                     ])),
-                if (route[subPathIndex]["stationCount"] - currentStation > 3) ...[
+                if (route[subPathIndex]["stationCount"] - currentStation > 2) ...[
                   ExpansionTile(
                       title: Row(children: [
                         SizedBox(
@@ -740,6 +740,19 @@ class _SubwayPage extends State<SubwayPage> {
     int stationCount = route[subPathIndex]["stationCount"];
 
     for (int i = 0; i < stationCount; i++) {
+      var _distanceInMeters = await Geolocator.distanceBetween(
+        double.parse(stations[i]["y"]),
+        double.parse(stations[i]["x"]),
+        position.latitude,
+        position.longitude,
+      );
+
+      if (_distanceInMeters < 100) {
+        currentStation = i;
+
+        return;
+      }
+
       bool lat =
           (position.latitude <= double.parse(stations[i]["y"]) && position.latitude > double.parse(stations[i + 1]["y"])) || (position.latitude < double.parse(stations[i + 1]["y"]) && position.latitude >= double.parse(stations[i]["y"]));
       bool lon = (position.longitude <= double.parse(stations[i]["x"]) && position.longitude > double.parse(stations[i + 1]["x"])) ||
@@ -760,17 +773,27 @@ class _SubwayPage extends State<SubwayPage> {
     );
 
     if (_distanceInMeters < 200) {
-      exBox.put('isGuiding', true);
-      exBox.put('subPathIndex', subPathIndex + 1);
-      exBox.put('nextRouteType', route[subPathIndex + 1]["trafficType"]);
+      if (subPathIndex + 1 < route.length) {
+        exBox.put('isGuiding', true);
+        exBox.put('subPathIndex', subPathIndex + 1);
+        exBox.put('nextRouteType', route[subPathIndex + 1]["trafficType"]);
+      } else {
+        exBox.put('isGuiding', false);
+        exBox.put('subPathIndex', 0);
+        exBox.put('nextRouteType', 3);
 
+        exBox.put('todayAlarm', false);
+        exBox.put('todayWakeUpCheck', false);
+        exBox.put('todayWakeUpHelp', false);
+
+        exBox.delete('route');
+      }
       Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => Home()),
       );
     }
-
     return;
   }
 

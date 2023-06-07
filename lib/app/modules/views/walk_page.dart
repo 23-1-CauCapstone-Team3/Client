@@ -103,7 +103,7 @@ class _WalkPage extends State<WalkPage> {
 
       if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
     } else {
-      departureTime = DateTime.now();
+      departureTime = DateTime.now().add(Duration(hours: 24));
       duration = departureTime.difference(DateTime.now());
 
       if (duration.inSeconds < 0) duration = const Duration(seconds: 0);
@@ -590,7 +590,7 @@ class _WalkPage extends State<WalkPage> {
       position.longitude,
     );
 
-    if (_distanceInMeters < 10) {
+    if (_distanceInMeters < 100) {
       if (subPathIndex + 1 < route.length) {
         exBox.put('isGuiding', true);
         exBox.put('subPathIndex', subPathIndex + 1);
