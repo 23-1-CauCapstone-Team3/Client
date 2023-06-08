@@ -82,7 +82,10 @@ class _TaxiPage extends State<TaxiPage> {
 
     findCurrentStation();
 
-    if (route[subPathIndex + 1]['trafficType'] == 4) {
+    print(route.length);
+    print(subPathIndex);
+
+    if (subPathIndex < route.length - 1 && route[subPathIndex + 1]['trafficType'] == 4) {
       departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(route[subPathIndex + 2]["lane"][0]["departureTime"]);
       duration = departureTime.difference(DateTime.now());
 
@@ -149,14 +152,26 @@ class _TaxiPage extends State<TaxiPage> {
                             SizedBox(
                               width: 30,
                             ),
-                            SizedBox(
-                              // height: 20,
-                              width: 200,
-                              child: Text(
-                                '${route[index + subPathIndex]["startName"]}',
-                                style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                            if (route[index + subPathIndex]["trafficType"] == 5) ... [
+                              SizedBox(
+                                // height: 20,
+                                width: 200,
+                                child: Text(
+                                  '${route[index + subPathIndex]["startName"]} (${route[index + subPathIndex]["taxiPayment"].toString()}원)',
+                                  style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                                ),
                               ),
-                            ),
+                            ]
+                            else ... [
+                              SizedBox(
+                                // height: 20,
+                                width: 200,
+                                child: Text(
+                                  '${route[index + subPathIndex]["startName"]}',
+                                  style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                                ),
+                              ),
+                            ]
                           ]));
                     },
                   ),
@@ -179,9 +194,10 @@ class _TaxiPage extends State<TaxiPage> {
                         width: 30,
                       ),
                       SizedBox(
-                        height: 20,
+                        // height: 20,
+                        width: 200,
                         child: Text(
-                          '${route[route.length - 1]["endName"]}',
+                          '${exBox.get('destination')} (${exBox.get('destinationAddress')})',
                           style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
                         ),
                       ),
@@ -190,8 +206,8 @@ class _TaxiPage extends State<TaxiPage> {
                   color: Colors.white54,
                 ),
                 SizedBox(height: 5),
-                if (route[subPathIndex + 1]['trafficType'] == 4) ...[
-                  if (route[subPathIndex + 2]['trafficType'] == 1) ...[
+                if (subPathIndex < route.length - 1 && route[subPathIndex + 1]['trafficType'] == 4) ...[
+                  if (subPathIndex < route.length - 2 && route[subPathIndex + 2]['trafficType'] == 1) ...[
                     // 다음 대중교통: 지하철
                     Text(
                       '탑승 예정 열차 정보',
@@ -231,7 +247,8 @@ class _TaxiPage extends State<TaxiPage> {
                     Divider(
                       color: Colors.white54,
                     ),
-                  ] else if (route[subPathIndex + 2]['trafficType'] == 2) ...[
+                  ]
+                  else if (subPathIndex < route.length - 2 && route[subPathIndex + 2]['trafficType'] == 2) ...[
                     // 다음 대중교통: 버스
                     Text(
                       '탑승 예정 버스 정보',
@@ -288,7 +305,8 @@ class _TaxiPage extends State<TaxiPage> {
                           width: 5,
                         ),
                         SizedBox(
-                          height: 20,
+                          // height: 20,
+                          width: 291,
                           child: Text(
                             '${route[subPathIndex]["startName"]}',
                             style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
@@ -366,9 +384,10 @@ class _TaxiPage extends State<TaxiPage> {
                     width: 5,
                   ),
                   SizedBox(
-                    height: 20,
+                    // height: 20,
+                    width: 291,
                     child: Text(
-                      '${route[subPathIndex]["endName"]} 하차',
+                      '${exBox.get('destination')} (${exBox.get('destinationAddress')}) 하차',
                       style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
                     ),
                   ),
@@ -448,7 +467,7 @@ class _TaxiPage extends State<TaxiPage> {
                         // TODO: 두번 눌러야 로드 되는 상황 발생 (이유를 모르겠음)
 
                         Future<Position?> position = getLocation();
-                        String domain = "e161-58-76-161-56.ngrok-free.app";
+                        String domain = "https://ee05-58-76-161-56.ngrok-free.app/";
 
                         String x = exBox.get('x', defaultValue: "126.955870181663");
                         String y = exBox.get('y', defaultValue: "37.5038217213134");
@@ -463,7 +482,7 @@ class _TaxiPage extends State<TaxiPage> {
 
                           /// Use this code when using server.
                           // TODO: Get data from server!
-                          var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+                          var url = '${domain}taxiRoute/findTaxiPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
                           var response = await http.get(Uri.parse(url));
 
                           /// Use this code when using json file.
@@ -479,16 +498,12 @@ class _TaxiPage extends State<TaxiPage> {
 
                             print(duration.inSeconds);
 
-                            if (duration.inSeconds > 0) {
-                              // TODO: set _setDepartureTimeData
-                              List result = dataConvertedToJSON["pathInfo"]["subPath"];
-                              route.addAll(result);
-                              print(route);
-                              exBox.put('route', route); // TODO: test hive
-                              exBox.put('departureTime', departureTime);
-                            } else {
-                              duration = const Duration(seconds: 0);
-                            }
+                            // TODO: set _setDepartureTimeData
+                            List result = dataConvertedToJSON["pathInfo"]["subPath"];
+                            route.addAll(result);
+                            print(route);
+                            exBox.put('route', route); // TODO: test hive
+                            exBox.put('departureTime', departureTime);
 
                             exBox.put('isGuiding', true);
                             exBox.put('subPathIndex', 0);

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:http/http.dart' as http;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -257,7 +259,7 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
                         outlineColor: Colors.white,
                       )
                     },
-                    initialCameraPosition: CameraPosition(target: LatLng((route[0]["startY"] + route[0]["endY"]) / 2, (route[0]["startX"] + route[0]["endX"]) / 2)),
+                    initialCameraPosition: CameraPosition(target: LatLng((route[0]["startY"] + route[0]["endY"]) / 2, (route[0]["startX"] + route[0]["endX"]) / 2), zoom: 14.0),
                   ),
                 )),
                 const SizedBox(height: 20),
@@ -327,7 +329,7 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
                         // TODO: 두번 눌러야 로드 되는 상황 발생 (이유를 모르겠음)
 
                         Future<Position?> position = getLocation();
-                        String domain = "e161-58-76-161-56.ngrok-free.app";
+                        String domain = "https://ee05-58-76-161-56.ngrok-free.app/";
 
                         String x = exBox.get('x', defaultValue: "126.955870181663");
                         String y = exBox.get('y', defaultValue: "37.5038217213134");
@@ -342,32 +344,31 @@ class _LockScreenActivityPage extends State<LockScreenActivityPage> {
 
                           /// Use this code when using server.
                           // TODO: Get data from server!
-                          // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
-                          // var response = await http.get(Uri.parse(url));
+                          var url = '${domain}taxiRoute/findTaxiPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+                          var response = await http.get(Uri.parse(url));
 
                           /// Use this code when using json file.
-                          var response = await rootBundle.loadString('assets/json/response_taxi.json');
+                          // var response = await rootBundle.loadString('assets/json/response_taxi.json');
 
                           setState(() {
                             print('in setState');
                             route.clear();
-                            var dataConvertedToJSON = json.decode(response);          //  Use this code when using json file.
-                            // var dataConvertedToJSON = json.decode(response.body);  //  Use this code when using server.
+                            // var dataConvertedToJSON = json.decode(response);          //  Use this code when using json file.
+                            var dataConvertedToJSON = json.decode(response.body);  //  Use this code when using server.
+                            print(dataConvertedToJSON);
                             departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
                             duration = departureTime.difference(DateTime.now());
 
+                            print(dataConvertedToJSON["departureTime"]);
                             print(duration.inSeconds);
 
-                            if (duration.inSeconds > 0) {
-                              // TODO: set _setDepartureTimeData
-                              List result = dataConvertedToJSON["pathInfo"]["subPath"];
-                              route.addAll(result);
-                              print(route);
-                              exBox.put('route', route); // TODO: test hive
-                              exBox.put('departureTime', departureTime);
-                            } else {
-                              duration = const Duration(seconds: 0);
-                            }
+                            // TODO: set _setDepartureTimeData
+                            List result = dataConvertedToJSON["pathInfo"]["subPath"];
+                            print(result);
+                            route.addAll(result);
+                            print(route);
+                            exBox.put('route', route); // TODO: test hive
+                            exBox.put('departureTime', departureTime);
 
                             exBox.put('isGuiding', true);
                             exBox.put('subPathIndex', 0);

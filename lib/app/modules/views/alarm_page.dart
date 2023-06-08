@@ -38,6 +38,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   /// [E] Location DB
 
   late String destination; // Hive
+  late String destinationAddress; // Hive
   late String x; // Hive
   late String y; // Hive
   Future<LocationInfo>? defaultLocation;
@@ -116,9 +117,11 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
         defaultLocation?.then((data) {
           if (data.id == 1) {
             destination = data.location;
+            destinationAddress = data.address;
             x = data.x;
             y = data.y;
             exBox.put('destination', destination);
+            exBox.put('destinationAddress', destinationAddress);
             exBox.put('x', x);
             exBox.put('y', y);
           }
@@ -130,9 +133,11 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
         todayAlarm = true;
         exBox.put('todayAlarm', todayAlarm);
         destination = data.location;
+        destinationAddress = data.address;
         x = data.x;
         y = data.y;
         exBox.put('destination', destination);
+        exBox.put('destinationAddress', destinationAddress);
         exBox.put('x', x);
         exBox.put('y', y);
         print("loadTodayAlarm");
@@ -153,8 +158,8 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
     });
   }
 
-  void insertAlarm(DateTime alarmDate, String location, String x, String y) {
-    _alarmInfoProvider.insert(AlarmInfo(alarmDate: DateFormat('yyyy-MM-dd').format(alarmDate), location: location, x: x, y: y));
+  void insertAlarm(DateTime alarmDate, String location, String address, String x, String y) {
+    _alarmInfoProvider.insert(AlarmInfo(alarmDate: DateFormat('yyyy-MM-dd').format(alarmDate), location: location, address: address, x: x, y: y));
   }
 
   void updateAlarm(AlarmInfo alarmInfo) {
@@ -222,6 +227,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
     super.initState();
 
     destination = exBox.get('destination', defaultValue: '');
+    destinationAddress = exBox.get('destinationAddress', defaultValue: '');
     x = exBox.get('x', defaultValue: '');
     y = exBox.get('y', defaultValue: '');
 
@@ -268,6 +274,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   @override
   Widget build(BuildContext context) {
     destination = exBox.get('destination', defaultValue: '');
+    destinationAddress = exBox.get('destinationAddress', defaultValue: '');
     x = exBox.get('x', defaultValue: '');
     y = exBox.get('y', defaultValue: '');
 
@@ -406,9 +413,10 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                       builder: (BuildContext context) {
                         DateTime newDate = DateTime.now().add(Duration(days: 1));
                         String newDestination = destination; // TODO
+                        String newDestinationAddress = destinationAddress;
                         String newX = x;
                         String newY = y;
-                        return _addFutureAlarm(newDate, newDestination, newX, newY);
+                        return _addFutureAlarm(newDate, newDestination, newDestinationAddress, newX, newY);
                       },
                     );
                   },
@@ -438,7 +446,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
     );
   }
 
-  StatefulBuilder _addFutureAlarm(DateTime newDate, String newDestination, String newX, String newY) {
+  StatefulBuilder _addFutureAlarm(DateTime newDate, String newDestination, String newDestinationAddress, String newX, String newY) {
     return StatefulBuilder(
         builder: (BuildContext context, setState) => SizedBox(
               height: MediaQuery.of(context).size.height * 0.92,
@@ -470,7 +478,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                       TextButton(
                         onPressed: () {
                           if (newDate.difference(DateTime.now()).inSeconds > 0) {
-                            insertAlarm(newDate, newDestination, newX, newY);
+                            insertAlarm(newDate, newDestination, newDestinationAddress, newX, newY);
                           }
                           setState(() => loadAlarms());
                           Navigator.pop(context);
@@ -566,6 +574,9 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                                                                         bottomState(() {
                                                                           setState(() {
                                                                             newDestination = location.location;
+                                                                            newDestinationAddress = location.address;
+                                                                            newX = location.x;
+                                                                            newY = location.y;
                                                                             // TODO: 도로명 주소 혹은 좌표 추가
                                                                           });
                                                                         });
@@ -668,6 +679,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                         builder: (BuildContext context) {
                           DateTime newDate = DateFormat('yyyy-MM-dd').parse(alarm.alarmDate);
                           String newDestination = alarm.location;
+                          String newDestinationAddress = alarm.address;
                           String newX = alarm.x;
                           String newY = alarm.y;
                           return StatefulBuilder(
@@ -701,7 +713,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                                             TextButton(
                                               onPressed: () {
                                                 if (newDate.difference(DateTime.now()).inSeconds > 0) {
-                                                  updateAlarm(AlarmInfo(id: alarm.id, alarmDate: DateFormat('yyyy-MM-dd').format(newDate), location: newDestination, x: newX, y: newY));
+                                                  updateAlarm(AlarmInfo(id: alarm.id, alarmDate: DateFormat('yyyy-MM-dd').format(newDate), location: newDestination, address: newDestinationAddress, x: newX, y: newY));
                                                 }
                                                 setState(() => loadAlarms());
                                                 Navigator.pop(context);
@@ -796,6 +808,9 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                                                                                               bottomState(() {
                                                                                                 setState(() {
                                                                                                   newDestination = location.location;
+                                                                                                  newDestinationAddress = location.address;
+                                                                                                  newX = location.x;
+                                                                                                  newY = location.y;
                                                                                                   // TODO: 도로명 주소 혹은 좌표 추가
                                                                                                 });
                                                                                               });
@@ -1074,9 +1089,11 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
                                     bottomState(() {
                                       setState(() {
                                         destination = location.location;
+                                        destinationAddress = location.address;
                                         x = location.x;
                                         y = location.y;
                                         exBox.put('destination', destination);
+                                        exBox.put('destinationAddress', destinationAddress);
                                         exBox.put('x', x);
                                         exBox.put('y', y);
                                       });
@@ -1150,7 +1167,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   Future<String?> getJSONData() async {
     Future<Position?> position = getLocation();
 
-    String domain = "e161-58-76-161-56.ngrok-free.app";
+    String domain = "https://ee05-58-76-161-56.ngrok-free.app/";
 
     if (mounted) setState(() {});
     position?.then((data) async {
@@ -1161,46 +1178,46 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
 
       ///  Use this code when using server.
       // TODO: Get data from server!
-      // var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
-      // var response = await http.get(Uri.parse(url));
-      //
-      // setState(() {
-      //   route.clear();
-      //   // var dataConvertedToJSON = json.decode(response);
-      //   var dataConvertedToJSON = json.decode(response.body);
-      //   departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
-      //   duration = departureTime.difference(DateTime.now());
-      //
-      //   if (duration.inSeconds >= 0) {
-      //     // TODO: set _setDepartureTimeData
-      //     List result = dataConvertedToJSON["pathInfo"]["subPath"];
-      //     print(result);
-      //     route.addAll(result);
-      //     exBox.put('route', route); // TODO: test hive
-      //     exBox.put('departureTime', departureTime);
-      //   }
-      // });
-
-      /// Use this code when using json file.
-      var response = await rootBundle.loadString('assets/json/response.json');
+      var url = '${domain}route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+      var response = await http.get(Uri.parse(url));
 
       setState(() {
         route.clear();
-        // var dataConvertedToJSON = json.decode(response.body);
-        var dataConvertedToJSON = json.decode(response);
+        // var dataConvertedToJSON = json.decode(response);
+        var dataConvertedToJSON = json.decode(response.body);
         departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
         duration = departureTime.difference(DateTime.now());
 
         if (duration.inSeconds >= 0) {
           // TODO: set _setDepartureTimeData
           List result = dataConvertedToJSON["pathInfo"]["subPath"];
+          print(result);
           route.addAll(result);
           exBox.put('route', route); // TODO: test hive
           exBox.put('departureTime', departureTime);
-          exBox.put('x', x);
-          exBox.put('y', y);
         }
       });
+
+      /// Use this code when using json file.
+      // var response = await rootBundle.loadString('assets/json/response.json');
+      //
+      // setState(() {
+      //   route.clear();
+      //   // var dataConvertedToJSON = json.decode(response.body);
+      //   var dataConvertedToJSON = json.decode(response);
+      //   departureTime = DateFormat('yyyy-MM-ddTHH:mm:ss').parse(dataConvertedToJSON["departureTime"]);
+      //   duration = departureTime.difference(DateTime.now());
+      //
+      //   if (duration.inSeconds >= 0) {
+      //     // TODO: set _setDepartureTimeData
+      //     List result = dataConvertedToJSON["pathInfo"]["subPath"];
+      //     route.addAll(result);
+      //     exBox.put('route', route); // TODO: test hive
+      //     exBox.put('departureTime', departureTime);
+      //     exBox.put('x', x);
+      //     exBox.put('y', y);
+      //   }
+      // });
 
       // return response.body;
       return response;

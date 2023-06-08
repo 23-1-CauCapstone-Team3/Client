@@ -206,14 +206,27 @@ class _WalkPage extends State<WalkPage> {
                             SizedBox(
                               width: 30,
                             ),
-                            SizedBox(
-                              // height: 20,
-                              width: 200,
-                              child: Text(
-                                '${route[index + subPathIndex]["startName"]}',
-                                style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+
+                            if (route[index + subPathIndex]["trafficType"] == 5) ... [
+                              SizedBox(
+                                // height: 20,
+                                width: 200,
+                                child: Text(
+                                  '${route[index + subPathIndex]["startName"]} (${route[index + subPathIndex]["taxiPayment"].toString()}원)',
+                                  style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                                ),
                               ),
-                            ),
+                            ]
+                            else ... [
+                              SizedBox(
+                                // height: 20,
+                                width: 200,
+                                child: Text(
+                                  '${route[index + subPathIndex]["startName"]}',
+                                  style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
+                                ),
+                              ),
+                            ]
                           ]));
                     },
                   ),
@@ -236,9 +249,10 @@ class _WalkPage extends State<WalkPage> {
                         width: 30,
                       ),
                       SizedBox(
-                        height: 20,
+                        // height: 20,
+                        width: 200,
                         child: Text(
-                          '${route[route.length - 1]["endName"]}',
+                          '${exBox.get('destination')} (${exBox.get('destinationAddress')})',
                           style: const TextStyle(fontFamily: 'NanumSquareNeo', color: Colors.white, fontSize: 20),
                         ),
                       ),
@@ -355,7 +369,7 @@ class _WalkPage extends State<WalkPage> {
                         outlineColor: Colors.white,
                       )
                     },
-                    initialCameraPosition: CameraPosition(target: LatLng((route[subPathIndex]["startY"] + route[subPathIndex]["endY"]) / 2, (route[subPathIndex]["startX"] + route[subPathIndex]["endX"]) / 2)),
+                    initialCameraPosition: CameraPosition(target: LatLng((route[subPathIndex]["startY"] + route[subPathIndex]["endY"]) / 2, (route[subPathIndex]["startX"] + route[subPathIndex]["endX"]) / 2), zoom: 14.0),
                   ),
                 )),
                 const SizedBox(height: 20),
@@ -438,7 +452,7 @@ class _WalkPage extends State<WalkPage> {
                         // TODO: 두번 눌러야 로드 되는 상황 발생 (이유를 모르겠음)
 
                         Future<Position?> position = getLocation();
-                        String domain = "e161-58-76-161-56.ngrok-free.app";
+                        String domain = "https://ee05-58-76-161-56.ngrok-free.app/";
 
                         String x = exBox.get('x', defaultValue: "126.955870181663");
                         String y = exBox.get('y', defaultValue: "37.5038217213134");
@@ -452,7 +466,7 @@ class _WalkPage extends State<WalkPage> {
 
                           /// Use this code when using server.
                           // TODO: Get data from server!
-                          var url = 'http://${domain}/route/getLastTimeAndPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
+                          var url = '${domain}taxiRoute/findTaxiPath?startX=${data?.longitude}&startY=${data?.latitude}&endX=$x&endY=$y&time=${DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now())}';
                           var response = await http.get(Uri.parse(url));
 
                           /// Use this code when using json file.
@@ -468,16 +482,12 @@ class _WalkPage extends State<WalkPage> {
 
                             print(duration.inSeconds);
 
-                            if (duration.inSeconds > 0) {
-                              // TODO: set _setDepartureTimeData
-                              List result = dataConvertedToJSON["pathInfo"]["subPath"];
-                              route.addAll(result);
-                              print(route);
-                              exBox.put('route', route); // TODO: test hive
-                              exBox.put('departureTime', departureTime);
-                            } else {
-                              duration = const Duration(seconds: 0);
-                            }
+                            // TODO: set _setDepartureTimeData
+                            List result = dataConvertedToJSON["pathInfo"]["subPath"];
+                            route.addAll(result);
+                            print(route);
+                            exBox.put('route', route); // TODO: test hive
+                            exBox.put('departureTime', departureTime);
 
                             exBox.put('isGuiding', true);
                             exBox.put('subPathIndex', 0);
