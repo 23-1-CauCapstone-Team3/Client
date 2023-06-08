@@ -33,6 +33,7 @@ class AlarmInfoProvider {
               id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
               alarmDate TEXT NOT NULL UNIQUE,
               location TEXT NOT NULL,
+              address TEXT NOT NULL,
               x TEXT NOT NULL,
               y TEXT NOT NULL
             )
@@ -49,6 +50,7 @@ class AlarmInfoProvider {
         id: maps[index]["id"],
         alarmDate: maps[index]["alarmDate"],
         location: maps[index]["location"],
+        address: maps[index]["address"],
         x: maps[index]["x"],
         y: maps[index]["y"],
       );
@@ -63,11 +65,12 @@ class AlarmInfoProvider {
       where: "alarmDate = ?",
       whereArgs: [today],
     );
-    if (map.isEmpty) return AlarmInfo(alarmDate: "", location: "", x: "", y: "");
+    if (map.isEmpty) return AlarmInfo(alarmDate: "", location: "", address: "", x: "", y: "");
     return AlarmInfo(
       id: map[0]["id"],
       alarmDate: map[0]["alarmDate"],
       location: map[0]["location"],
+      address: map[0]["address"],
       x: map[0]["x"],
       y: map[0]["y"],
     );
