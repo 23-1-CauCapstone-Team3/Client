@@ -18,6 +18,9 @@ kakao.native.app.key=[KAKAO Native APP KEY]
 - lib/app/modules/views/taxi_page.dart line 470 String domain = "[domain 값]"
 ```
 
+## 메뉴얼
+[Manual](/docs/manual.pdf)
+
 ## 브랜치 관리 규칙
 
 - `master` : 정식 배포용
