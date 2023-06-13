@@ -1167,7 +1167,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   Future<String?> getJSONData() async {
     Future<Position?> position = getLocation();
 
-    String domain = "https://ee05-58-76-161-56.ngrok-free.app/";
+    String domain = "[please put your domain]";
 
     if (mounted) setState(() {});
     position?.then((data) async {

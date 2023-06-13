@@ -615,7 +615,7 @@ class _SubwayPage extends State<SubwayPage> {
                         // TODO: 두번 눌러야 로드 되는 상황 발생 (이유를 모르겠음)
 
                         Future<Position?> position = getLocation();
-                        String domain = "https://ee05-58-76-161-56.ngrok-free.app/";
+                        String domain = "[please put your domain]";
 
                         String x = exBox.get('x', defaultValue: "126.955870181663");
                         String y = exBox.get('y', defaultValue: "37.5038217213134");
