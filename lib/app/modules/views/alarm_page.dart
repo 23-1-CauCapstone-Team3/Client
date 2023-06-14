@@ -1167,7 +1167,7 @@ class _AlarmPageState extends State<AlarmPage> with AutomaticKeepAliveClientMixi
   Future<String?> getJSONData() async {
     Future<Position?> position = getLocation();
 
-    String domain = "[please put your domain]";
+    String domain = "http://52.78.214.66:3000/";
 
     if (mounted) setState(() {});
     position?.then((data) async {

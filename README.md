@@ -9,14 +9,6 @@ naver.map.CLIENT_ID=[naver.map.CLIENT_ID]
 kakao.native.app.key=[KAKAO Native APP KEY]
 ```
 - `lib/app/modules/views/my_location_page.dart` line 370의 [your kakao rest api key]를 발급받은 kakao rest api key로 교체해주세요.
-- Server 실행 시 받은 domain을 다음 위치에 넣어주세요
-```
-- lib/app/modules/views/alarm_page.dart line 1170 String domain = "[domain 값]"
-- lib/app/modules/views/walk_page.dart line 455 String domain = "[domain 값]"
-- lib/app/modules/views/bus_page.dart line 620 String domain = "[domain 값]"
-- lib/app/modules/views/subway_page.dart line 618 String domain = "[domain 값]"
-- lib/app/modules/views/taxi_page.dart line 470 String domain = "[domain 값]"
-```
 
 ## 메뉴얼
 [Manual](/docs/manual.pdf)
